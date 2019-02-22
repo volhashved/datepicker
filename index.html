@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">    
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
 	<title>Datepicker app</title>
 </head>
@@ -13,12 +14,15 @@
                 <label for="datepicker">Enter a date:</label>
                 <input type="text" id="datepicker">
             </div>
-            <div class="datepicker__wrapper">
-                <div class="datepicker__calendar hidden">
-                    <div class="datepicker__heading">
-                        <h2></h2>
+            <div class="datepicker__content">
+                <div class="calendar hidden">
+                    <h2 class="calendar__date_today"></h2>
+                    <div class="calendar__heading">
+                        <i class="calendar__button_previous fas fa-chevron-left"></i>
+                        <h3 class="calendar__date_active"></h3>
+                        <i class="calendar__button_next fas fa-chevron-right"></i>
                     </div>
-                    <div class="datepicker__days">                       
+                    <div class="calendar__days">                       
                         <div>Mo</div>
                         <div>Tu</div>
                         <div>We</div>
@@ -27,7 +31,7 @@
                         <div>Sa</div>
                         <div>Su</div>
                     </div>
-                    <div class="datepicker__table"></div>
+                    <div class="calendar__table"></div>
                 </div>
             </div>
         </div>

@@ -1,5 +1,7 @@
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -11,7 +13,7 @@ body {
     margin: auto;
 }
 
-h1, h2, .datepicker__wrapper {
+h1, h2, .datepicker__content {
     text-align: center;
 }
 
@@ -27,11 +29,11 @@ h1, h2, .datepicker__wrapper {
     border: 1px solid gray;
 }
 
-.datepicker__calendar {
+.calendar {
     display: inline-block;
 }
 
-.datepicker__table, .datepicker__days {    
+.calendar__table, .calendar__days {    
     display: grid;
     grid-template-columns: repeat(7,14%);
     
@@ -41,17 +43,33 @@ h1, h2, .datepicker__wrapper {
     padding: 10px;
     text-align: center;
     background: lightblue;
+    cursor: pointer;
 }
 
 .datepicker__date_disabled {
     opacity: 0.7;
     pointer-events: none;
+    cursor: default;
 }
 
 .datepicker__date_today {
-   background: teal;
+   background: teal;  
 }
 
 .hidden {
     display: none;
+}
+
+.calendar__heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.calendar__heading i {
+    cursor: pointer;
+}
+
+.calendar__current-date {
+    margin: 10px;
 }
