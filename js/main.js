@@ -1,7 +1,7 @@
 class Datepicker {
     constructor (minDate, maxDate) {
-        // this.minDate = minDate;
-        // this.maxDate = maxDate;        
+        this.minDate = minDate;
+        this.maxDate = maxDate;        
         this.isDisplayed = false;
         this.now = new Date();        
 
@@ -27,7 +27,13 @@ class Datepicker {
 
     setCurrentDay() {
         this.currentDay = this.now.getDate();
-    }   
+    }
+
+    validateDate() {
+        if (this.minDate > this.maxDate) {
+            throw new Error("Dates are invalid");
+        }
+    }
 
     initHeading() {
         this.calendarHeading.innerHTML = `${this.now.toLocaleString("ru", {        
@@ -68,18 +74,14 @@ class Datepicker {
         for(let i = 1; i <= lastDay; i++) {
             let calendarDay = document.createElement("div");            
             calendarDay.className = "datepicker__date"; 
+            let theDate = new Date(yearPar, monthPar, i);
 
-            if(year == this.year && month == this.month) {
-                if(i < this.currentDay) {
-                    calendarDay.className += " datepicker__date_disabled";
-                }
-                else if(i == this.currentDay) {                    
-                    calendarDay.className += " datepicker__date_today";
-                }
+            if(theDate < minDate || theDate > maxDate) {
+                calendarDay.className += " datepicker__date_disabled";
             }
 
-            if(year < this.year || month < this.month) {
-                calendarDay.className += " datepicker__date_disabled";
+            if(year == this.year && month == this.month && i == this.currentDay) {        
+                calendarDay.className += " datepicker__date_today";                
             }
                         
             calendarDay.innerHTML = `${i}`;               
@@ -89,7 +91,7 @@ class Datepicker {
         if (ltweekday == 0) return;
         for(let i = ltweekday; i < 7; i++) {
             let calendarDay = document.createElement("div");
-            calendarDay.className = "datepicker__date_disabled";
+            calendarDay.className = "datepicker__date datepicker__date_disabled";
             calendarDay.innerHTML = "";
             this.calendarTable.appendChild(calendarDay);
         }
@@ -137,20 +139,20 @@ class Datepicker {
         this.calendar.addEventListener("click", (e) => e.stopPropagation());        
     }
 
-    initCalendar() {  
+    initCalendar() {
+        this.validateDate();
         this.setYear();        
         this.setMonth();        
         this.setCurrentDay();        
-        this.initHeading();              
+        this.initHeading();      
         this.inputField.addEventListener("click", this.displayCalendar.bind(this));
         this.nextMonthBtn.addEventListener("click", this.renderNextMonth.bind(this));
         this.previousMonthBtn.addEventListener("click", this.renderPrevMonth.bind(this));
         window.addEventListener("click", this.hideCalendar.bind(this));
-    }
-    
+    }    
 }
 
-const minDate = new Date(2019, 0, 1, 0, 0, 0);
-const maxDate = new Date(2019, 0, 31, 0, 0, 0);
+const minDate = new Date(2018, 10, 10);
+const maxDate = new Date(2019, 2, 20);
 
 let datepicker = new Datepicker(minDate,maxDate);
