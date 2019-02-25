@@ -6,6 +6,7 @@
 
 body {
     font-family: Arial, sans-serif;
+    background: #eee;
 }
 
 .container {
@@ -13,67 +14,92 @@ body {
     margin: auto;
 }
 
-h1, h2, .datepicker__content {
+.heading {
     text-align: center;
+    margin: 20px 0;
+}
+
+.datepicker {
+    margin: 50px 0;
+}
+
+.datepicker__date {
+    width: 400px;
+    margin: 0 auto;
 }
 
 .datepicker__input {
-    width: 400px;
-    margin: 20px auto;
+    width:  100%;
+    padding: 7px 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    outline: none;
 }
 
-.datepicker__input input {
-    width:  100%;
-    padding: 5px 10px;
-    border-radius: 3px;
-    border: 1px solid gray;
+.datepicker__content {
+    width: 400px;
+    margin: auto;
+    text-align: center;    
 }
 
 .calendar {
-    display: inline-block;
+    box-shadow: 8px 8px 20px 3px rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+
+.calendar_hidden {
+    display: none;
+}
+
+.calendar__label {
+    background: teal;
+    color: white;
+    padding: 15px 10px;
+    border-radius: 4px 4px 0 0;
+    margin-top: 20px;
+}
+
+.calendar__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 10px;
+}
+
+.calendar__button {
+    cursor: pointer;
+}
+
+.calendar__days {  
+    list-style: none;    
 }
 
 .calendar__table, .calendar__days {    
     display: grid;
-    grid-template-columns: repeat(7,14%);    
-}
-
-.calendar__days {
-    display: grid;
-    grid-template-columns: repeat(7,14%);    
-}
-
-.datepicker__date, .datepicker__label, .datepicker__date_disabled {
+    grid-template-columns: repeat(7,14%);
+    grid-row-gap: 1px;
+    grid-column-gap: 1px;
+    justify-content: space-between;
     padding: 10px;
-    text-align: center;
-    background: lightblue;
+}
+
+.calendar__date {
+    padding: 10px;
+    text-align: center;    
     cursor: pointer;
 }
 
-.datepicker__date_disabled {
-    opacity: 0.7;
+.calendar__date_active {
+    background: rgba(0,128,128,0.1);
+}
+
+.calendar__date_today {
+    background: teal;
+    border-radius: 3px;
+}
+
+.calendar__date_disabled {
+    opacity: 0.3;
     pointer-events: none;
     cursor: default;
-}
-
-.datepicker__label {
-   background: teal;  
-}
-
-.hidden {
-    display: none;
-}
-
-.calendar__heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.calendar__heading i {
-    cursor: pointer;
-}
-
-.calendar__current-date {
-    margin: 10px;
 }

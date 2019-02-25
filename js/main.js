@@ -18,12 +18,18 @@ class Datepicker {
         this.container.appendChild(this.datePicker);
 
         this.inputWrap = document.createElement("div");
-        this.inputWrap.className = "datepicker__input";
-        this.datePicker.appendChild(this.inputWrap);
+        this.inputWrap.className = "datepicker__date";
+        this.datePicker.appendChild(this.inputWrap);        
+        
+        this.inputLabel = document.createElement("label");
+        this.inputLabel.className = "datepicker__label";
+        this.inputLabel.textContent = "Select date";   
+        this.inputWrap.appendChild(this.inputLabel);
 
         this.inputField = document.createElement("input");
+        this.inputField.className = "datepicker__input";
         this.inputField.setAttribute("type", "text");
-        this.inputWrap.appendChild(this.inputField);        
+        this.inputLabel.appendChild(this.inputField);
     }
 
     createCalendarLayout() {
@@ -32,36 +38,36 @@ class Datepicker {
         this.datePicker.appendChild(this.calendWrap);
 
         this.calendar = document.createElement("div");
-        this.calendar.className = "calendar hidden";
+        this.calendar.className = "calendar calendar_hidden";
         this.calendWrap.appendChild(this.calendar);
 
         this.calendarLabel = document.createElement("h2");
         this.calendarLabel.className = "calendar__label";
         this.calendar.appendChild(this.calendarLabel);
-        this.initHeading();
+        this.renderLabel();
 
-        this.calendarHeading = document.createElement("div");
-        this.calendarHeading.className = "calendar__heading";
-        this.calendar.appendChild(this.calendarHeading);
+        this.calendarHeader = document.createElement("div");
+        this.calendarHeader.className = "calendar__header";
+        this.calendar.appendChild(this.calendarHeader);
 
         this.previousMonthBtn = document.createElement("i");
-        this.previousMonthBtn.className = "calendar__button_previous fas fa-chevron-left";
-        this.calendarHeading.appendChild(this.previousMonthBtn);
+        this.previousMonthBtn.className = "calendar__button fas fa-chevron-left";
+        this.calendarHeader.appendChild(this.previousMonthBtn);
 
         this.activeMonth = document.createElement("h3");
-        this.activeMonth.className = "calendar__date_active";
-        this.calendarHeading.appendChild(this.activeMonth);
+        this.activeMonth.className = "calendar__month";
+        this.calendarHeader.appendChild(this.activeMonth);
 
         this.nextMonthBtn = document.createElement("i");
-        this.nextMonthBtn.className = "calendar__button_next fas fa-chevron-right";
-        this.calendarHeading.appendChild(this.nextMonthBtn);
+        this.nextMonthBtn.className = "calendar__button fas fa-chevron-right";
+        this.calendarHeader.appendChild(this.nextMonthBtn);
 
-        this.calendarDates = document.createElement("div");
+        this.calendarDates = document.createElement("ul");
         this.calendarDates.className = "calendar__days";
         this.calendar.appendChild(this.calendarDates);
 
         this.weekDays.forEach((item) => {
-            let wkDay = document.createElement("div");
+            let wkDay = document.createElement("li");
             wkDay.textContent = item;
             this.calendarDates.appendChild(wkDay);
         });
@@ -73,8 +79,7 @@ class Datepicker {
     }
 
     setYear() {
-        this.year = this.now.getFullYear();
-        this.yearCounter = this.year;
+        this.year = this.now.getFullYear();        
     }
 
     setMonth() {
@@ -92,7 +97,7 @@ class Datepicker {
         }
     }
 
-    initHeading() {
+    renderLabel() {
         this.calendarLabel.innerHTML = `${this.now.toLocaleString("ru", {        
             year: 'numeric',
             month: 'long',
@@ -123,23 +128,23 @@ class Datepicker {
 
         for(let i = 1; i < stweekDay; i++) {
             let calendarDay = document.createElement("div");
-            calendarDay.className = "datepicker__date datepicker__date_disabled";
+            calendarDay.className = "calendar__date calendar__date_disabled";
             calendarDay.innerHTML = " ";
             this.calendarTable.appendChild(calendarDay);
         }            
 
         for(let i = 1; i <= lastDay; i++) {
             let calendarDay = document.createElement("div");            
-            calendarDay.className = "datepicker__date";           
+            calendarDay.className = "calendar__date calendar__date_active";           
             this.monthDates.push(calendarDay);
             let theDate = new Date(yearPar, monthPar, i);
 
             if(theDate < this.minDate || theDate > this.maxDate) {
-                calendarDay.className += " datepicker__date_disabled";
+                calendarDay.className = "calendar__date calendar__date_disabled";
             }
 
             if(year == this.year && month == this.month && i == this.currentDay) {        
-                calendarDay.className += " datepicker__date_today";                
+                calendarDay.className = "calendar__date calendar__date_today";                
             }
                         
             calendarDay.innerHTML = `${i}`;               
@@ -150,7 +155,7 @@ class Datepicker {
         if (ltweekday == 0) return;
         for(let i = ltweekday; i < 7; i++) {
             let calendarDay = document.createElement("div");
-            calendarDay.className = "datepicker__date datepicker__date_disabled";
+            calendarDay.className = "calendar__date calendar__date_disabled";
             calendarDay.innerHTML = "";
             this.calendarTable.appendChild(calendarDay);
         }        
@@ -172,14 +177,14 @@ class Datepicker {
         e.stopPropagation();
         this.renderCalendar(this.year, this.month);      
         if(!this.isDisplayed) {
-            this.calendar.classList.remove('hidden');
+            this.calendar.classList.remove('calendar_hidden');
             this.isDisplayed = true;
         }
     }   
 
     hideCalendar() {            
        if(this.isDisplayed) {
-            this.calendar.classList.add('hidden');
+            this.calendar.classList.add('calendar_hidden');
             this.inputField.value = "";
             this.isDisplayed = false;
        }
