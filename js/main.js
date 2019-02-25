@@ -7,7 +7,8 @@ class Datepicker {
         this.isDisplayed = false;
         this.now = new Date();   
         this.container = document.querySelector(".container");
-        this.weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];        
+        this.weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+        this.monthDates = [];       
         this.initCalendar();
     }
 
@@ -129,7 +130,8 @@ class Datepicker {
 
         for(let i = 1; i <= lastDay; i++) {
             let calendarDay = document.createElement("div");            
-            calendarDay.className = "datepicker__date"; 
+            calendarDay.className = "datepicker__date";           
+            this.monthDates.push(calendarDay);
             let theDate = new Date(yearPar, monthPar, i);
 
             if(theDate < this.minDate || theDate > this.maxDate) {
@@ -183,9 +185,8 @@ class Datepicker {
        }
     }    
 
-    pickDate() {        
-        const calendarDates = Array.from(document.getElementsByClassName("datepicker__date"));     
-        calendarDates.map(item => {            
+    pickDate() {                
+        this.monthDates.map(item => {            
             item.addEventListener("click", (e) => this.inputField.value = new Date(this.year, this.monthCounter, e.target.textContent));
         })
     }
@@ -200,13 +201,11 @@ class Datepicker {
         this.inputField.addEventListener("click", this.displayCalendar.bind(this));
         this.nextMonthBtn.addEventListener("click", this.renderNextMonth.bind(this));
         this.previousMonthBtn.addEventListener("click", this.renderPrevMonth.bind(this));
-        this.calendar.addEventListener("click", (e) => e.stopPropagation());
+        this.calendar.addEventListener("click", (e) => e.stopPropagation());        
         window.addEventListener("click", this.hideCalendar.bind(this));
     }    
 }
 
 new Datepicker(new Date(2019, 1, 5), new Date(2019, 3, 20));
-
 new Datepicker(new Date(2019, 0, 25), new Date(2019, 2, 11));
-
 new Datepicker(new Date(2019, 1, 10), new Date(2019, 3, 20));
