@@ -69,12 +69,7 @@ class Datepicker {
         this.calendarLabel = document.createElement("h2");
         this.calendarLabel.className = "calendar__label";
         this.calendar.appendChild(this.calendarLabel);
-        this.calendarLabel.innerHTML = `${this.now.toLocaleString("ru", {        
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            weekday: 'long'              
-        })}`;
+        this.calendarLabel.innerHTML = `${this.currentDay}/${this.month+1}/${this.year}`;       
     }    
 
     renderHeader() {
@@ -112,7 +107,7 @@ class Datepicker {
     }
 
     renderCalendarDates(yearPar, monthPar) {
-        this.activeMonth.innerHTML = `${(new Date(yearPar, monthPar)).toLocaleString("ru", {        
+        this.activeMonth.innerHTML = `${(new Date(yearPar, monthPar)).toLocaleString("en", {        
             year: 'numeric',
             month: 'long'                         
         })}`;
@@ -194,8 +189,11 @@ class Datepicker {
     }    
 
     pickDate() {                
-        this.monthDates.map(item => {            
-            item.addEventListener("click", (e) => this.inputField.value = new Date(this.year, this.monthCounter, e.target.textContent));
+        this.monthDates.map(item => {                         
+            item.addEventListener("click", (e) => {
+                let selectedDate = new Date(this.year, this.monthCounter, e.target.textContent);
+                this.inputField.value = `${selectedDate.getDate()}/${selectedDate.getMonth()+1}/${selectedDate.getFullYear()}`;               
+            });
         })
     }
 
@@ -214,6 +212,6 @@ class Datepicker {
     }    
 }
 
-new Datepicker(new Date(2017, 1, 5), new Date(2017, 3, 20));
-new Datepicker(new Date(2019, 0, 25), new Date(2019, 2, 11));
+new Datepicker(new Date(2019, 1, 5), new Date(2019, 3, 20));
+new Datepicker(new Date(2017, 0, 25), new Date(2018, 2, 11));
 new Datepicker(new Date(2019, 1, 10), new Date(2019, 3, 20));
