@@ -173,7 +173,7 @@ class Datepicker {
 
     displayCalendar(e) {
         e.stopPropagation();
-        this.renderCalendarDates(this.year, this.month);      
+        this.renderCalendarDates(this.year, this.month);   
         if(!this.isDisplayed) {
             this.calendar.classList.remove('calendar_hidden');
             this.isDisplayed = true;
@@ -205,6 +205,7 @@ class Datepicker {
         this.createInputLayout();
         this. createCalendarLayout();
         this.inputField.addEventListener("click", this.displayCalendar.bind(this));
+        this.calendarLabel.addEventListener("click", this.displayCalendar.bind(this));
         this.nextMonthBtn.addEventListener("click", this.renderNextMonth.bind(this));
         this.previousMonthBtn.addEventListener("click", this.renderPrevMonth.bind(this));
         this.calendar.addEventListener("click", (e) => e.stopPropagation());        
