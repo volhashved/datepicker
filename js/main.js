@@ -12,6 +12,25 @@ class Datepicker {
         this.initCalendar();
     }
 
+    setYear() {
+        this.year = this.now.getFullYear();        
+    }
+
+    setMonth() {
+        this.month = this.now.getMonth(); 
+        this.monthCounter = this.month;
+    }     
+
+    setCurrentDay() {
+        this.currentDay = this.now.getDate();
+    }
+
+    validateDate() {
+        if (this.minDate > this.maxDate) {
+            throw new Error("Dates are invalid");
+        }
+    }
+
     createInputLayout() {
         this.datePicker = document.createElement("div");
         this.datePicker.className = "datepicker";
@@ -40,12 +59,25 @@ class Datepicker {
         this.calendar = document.createElement("div");
         this.calendar.className = "calendar calendar_hidden";
         this.calendWrap.appendChild(this.calendar);
+ 
+        this.renderLabel();
+        this.renderHeader();
+        this.renderCalendarTable();
+    }    
 
+    renderLabel() {
         this.calendarLabel = document.createElement("h2");
         this.calendarLabel.className = "calendar__label";
         this.calendar.appendChild(this.calendarLabel);
-        this.renderLabel();
+        this.calendarLabel.innerHTML = `${this.now.toLocaleString("ru", {        
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'              
+        })}`;
+    }    
 
+    renderHeader() {
         this.calendarHeader = document.createElement("div");
         this.calendarHeader.className = "calendar__header";
         this.calendar.appendChild(this.calendarHeader);
@@ -61,7 +93,9 @@ class Datepicker {
         this.nextMonthBtn = document.createElement("i");
         this.nextMonthBtn.className = "calendar__button fas fa-chevron-right";
         this.calendarHeader.appendChild(this.nextMonthBtn);
+    }
 
+    renderCalendarTable() {
         this.calendarDates = document.createElement("ul");
         this.calendarDates.className = "calendar__days";
         this.calendar.appendChild(this.calendarDates);
@@ -75,76 +109,47 @@ class Datepicker {
         this.calendarTable = document.createElement("div");
         this.calendarTable.className = "calendar__table";
         this.calendar.appendChild(this.calendarTable);
-
     }
 
-    setYear() {
-        this.year = this.now.getFullYear();        
-    }
-
-    setMonth() {
-        this.month = this.now.getMonth(); 
-        this.monthCounter = this.month;
-    }     
-
-    setCurrentDay() {
-        this.currentDay = this.now.getDate();
-    }
-
-    validateDate() {
-        if (this.minDate > this.maxDate) {
-            throw new Error("Dates are invalid");
-        }
-    }
-
-    renderLabel() {
-        this.calendarLabel.innerHTML = `${this.now.toLocaleString("ru", {        
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            weekday: 'long'              
-        })}`;
-    }    
-
-    renderCalendar(yearPar, monthPar) {   
-        let year = yearPar;
-        let month = monthPar;
-
+    renderCalendarDates(yearPar, monthPar) {
         this.activeMonth.innerHTML = `${(new Date(yearPar, monthPar)).toLocaleString("ru", {        
             year: 'numeric',
             month: 'long'                         
         })}`;
 
-        let lastDay = (new Date(year, month + 1, 0)).getDate();        
+        let lastDay = (new Date(yearPar, monthPar + 1, 0)).getDate();       
         
-        let stweekDay = (new Date(year, month, 1)).getDay();        
+        let stweekDay = (new Date(yearPar, monthPar, 1)).getDay();
         if (stweekDay == 0) {
             stweekDay = 7;
         }        
 
-        let ltweekday = (new Date(year, month, lastDay)).getDay();
+        let ltweekday = (new Date(yearPar, monthPar, lastDay)).getDay();
 
         this.calendarTable.innerHTML = "";
 
         for(let i = 1; i < stweekDay; i++) {
             let calendarDay = document.createElement("div");
             calendarDay.className = "calendar__date calendar__date_disabled";
-            calendarDay.innerHTML = " ";
+            calendarDay.innerHTML = "";
             this.calendarTable.appendChild(calendarDay);
         }            
 
         for(let i = 1; i <= lastDay; i++) {
             let calendarDay = document.createElement("div");            
-            calendarDay.className = "calendar__date calendar__date_active";           
+            calendarDay.className = "calendar__date";           
             this.monthDates.push(calendarDay);
-            let theDate = new Date(yearPar, monthPar, i);
+            let theDate = new Date(yearPar, monthPar, i);            
 
             if(theDate < this.minDate || theDate > this.maxDate) {
-                calendarDay.className = "calendar__date calendar__date_disabled";
+                calendarDay.className += " calendar__date_disabled";
             }
-
-            if(year == this.year && month == this.month && i == this.currentDay) {        
-                calendarDay.className = "calendar__date calendar__date_today";                
+            else {
+                calendarDay.className += " calendar__date_active";
+            }  
+            
+            if(yearPar == this.year && monthPar == this.month && i == this.currentDay) {  
+                calendarDay.className += " calendar__date_today";                
             }
                         
             calendarDay.innerHTML = `${i}`;               
@@ -161,21 +166,19 @@ class Datepicker {
         }        
     }
 
-    renderNextMonth() {
-        var year = this.year;    
+    renderNextMonth() {           
         this.monthCounter = this.monthCounter + 1;
-        this.renderCalendar(year, this.monthCounter);          
+        this.renderCalendarDates(this.year, this.monthCounter);          
     }
 
-    renderPrevMonth() {
-        var year = this.year;    
+    renderPrevMonth() {            
         this.monthCounter = this.monthCounter - 1;
-        this.renderCalendar(year, this.monthCounter);    
+        this.renderCalendarDates(this.year, this.monthCounter);    
     }
 
     displayCalendar(e) {
         e.stopPropagation();
-        this.renderCalendar(this.year, this.month);      
+        this.renderCalendarDates(this.year, this.month);      
         if(!this.isDisplayed) {
             this.calendar.classList.remove('calendar_hidden');
             this.isDisplayed = true;
@@ -211,6 +214,6 @@ class Datepicker {
     }    
 }
 
-new Datepicker(new Date(2019, 1, 5), new Date(2019, 3, 20));
+new Datepicker(new Date(2017, 1, 5), new Date(2017, 3, 20));
 new Datepicker(new Date(2019, 0, 25), new Date(2019, 2, 11));
 new Datepicker(new Date(2019, 1, 10), new Date(2019, 3, 20));
