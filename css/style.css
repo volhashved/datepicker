@@ -39,7 +39,7 @@ body {
 .datepicker__content {
     width: 400px;
     margin: auto;
-    text-align: center;    
+    text-align: center;
 }
 
 .calendar {
@@ -71,11 +71,11 @@ body {
     cursor: pointer;
 }
 
-.calendar__days {  
-    list-style: none;    
+.calendar__days {
+    list-style: none;
 }
 
-.calendar__table, .calendar__days {    
+.calendar__table, .calendar__days {
     display: grid;
     grid-template-columns: repeat(7,14%);
     grid-row-gap: 1px;
@@ -86,7 +86,7 @@ body {
 
 .calendar__date {
     padding: 10px;
-    text-align: center;    
+    text-align: center;
     cursor: pointer;
 }
 

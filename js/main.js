@@ -96,7 +96,7 @@ class Datepicker {
         this.calendar.appendChild(this.calendarDates);
 
         this.weekDays.forEach((item) => {
-            let wkDay = document.createElement("li");
+            const wkDay = document.createElement("li");
             wkDay.textContent = item;
             this.calendarDates.appendChild(wkDay);
         });
@@ -112,29 +112,29 @@ class Datepicker {
             month: 'long'
         })}`;
 
-        let lastDay = (new Date(yearPar, monthPar + 1, 0)).getDate();
+        const lastDay = (new Date(yearPar, monthPar + 1, 0)).getDate();
         
         let stweekDay = (new Date(yearPar, monthPar, 1)).getDay();
-        if (stweekDay == 0) {
+        if (stweekDay === 0) {
             stweekDay = 7;
         }
 
-        let ltweekday = (new Date(yearPar, monthPar, lastDay)).getDay();
+        const ltweekday = (new Date(yearPar, monthPar, lastDay)).getDay();
 
         this.calendarTable.innerHTML = "";
 
         for(let i = 1; i < stweekDay; i++) {
-            let calendarDay = document.createElement("div");
+            const calendarDay = document.createElement("div");
             calendarDay.className = "calendar__date calendar__date_disabled";
             calendarDay.innerHTML = "";
             this.calendarTable.appendChild(calendarDay);
         }
 
         for(let i = 1; i <= lastDay; i++) {
-            let calendarDay = document.createElement("div");
+            const calendarDay = document.createElement("div");
             calendarDay.className = "calendar__date";
             this.monthDates.push(calendarDay);
-            let theDate = new Date(yearPar, monthPar, i);
+            const theDate = new Date(yearPar, monthPar, i);
 
             if(theDate < this.minDate || theDate > this.maxDate) {
                 calendarDay.className += " calendar__date_disabled";
@@ -143,7 +143,7 @@ class Datepicker {
                 calendarDay.className += " calendar__date_active";
             }
 
-            if(yearPar == this.year && monthPar == this.month && i == this.currentDay) {
+            if(yearPar === this.year && monthPar === this.month && i === this.currentDay) {
                 calendarDay.className += " calendar__date_today";
             }
 
@@ -152,9 +152,9 @@ class Datepicker {
         }
         this._selectDate();
 
-        if (ltweekday == 0) return;
+        if (ltweekday === 0) return;
         for(let i = ltweekday; i < 7; i++) {
-            let calendarDay = document.createElement("div");
+            const calendarDay = document.createElement("div");
             calendarDay.className = "calendar__date calendar__date_disabled";
             calendarDay.innerHTML = "";
             this.calendarTable.appendChild(calendarDay);
@@ -169,7 +169,7 @@ class Datepicker {
     _renderPrevMonth() {
         this.monthCounter = this.monthCounter - 1;
         this._renderCalendarDates(this.year, this.monthCounter);
-    }    
+    }
 
     _selectDate() {
         this.monthDates.map(item => {
