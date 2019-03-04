@@ -8,6 +8,7 @@ class Datepicker {
         this.now = new Date();
         this.weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
         this.monthDates = [];
+        this.selectedDate = null;
         this.initCalendar();
     }
 
@@ -29,6 +30,31 @@ class Datepicker {
             throw new Error("Dates are invalid");
         }
     }
+
+    get minDat() {
+        return this.minDate;
+    }
+
+    set minDat(minVal) {
+        this.minDate = minVal;
+    }
+
+    get maxDat() {
+        return this.maxDate;
+    }
+
+    set maxDat(maxVal) {
+        this.maxDate = maxVal;
+    }
+
+    get selectedDat() {
+        return this.selectedDate;
+    }
+
+    // set selectedDat(newDate) {
+    //     this.selectedDate = newDate;
+    //     this.open();
+    // }
 
     _renderInput() {
         this.datePicker = document.createElement("div");
