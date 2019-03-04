@@ -10,98 +10,12 @@ body {
 }
 
 .container {
-    width: 980px;
+    max-width: 980px;
     margin: auto;
+    padding: 0 30px;
 }
 
 .heading {
     text-align: center;
     margin: 20px 0;
-}
-
-.datepicker {
-    margin: 50px 0;
-}
-
-.datepicker__date {
-    width: 400px;
-    margin: 0 auto;
-}
-
-.datepicker__input {
-    width:  100%;
-    padding: 7px 10px;
-    border-radius: 3px;
-    border: 1px solid #ccc;
-    outline: none;
-}
-
-.datepicker__content {
-    width: 400px;
-    margin: auto;
-    text-align: center;
-}
-
-.calendar {
-    box-shadow: 8px 8px 20px 3px rgba(0,0,0,0.2);
-    border-radius: 4px;
-}
-
-.calendar_hidden {
-    display: none;
-}
-
-.calendar__label {
-    background: teal;
-    color: white;
-    padding: 15px 10px;
-    border-radius: 4px 4px 0 0;
-    margin-top: 20px;
-    cursor: pointer;
-}
-
-.calendar__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 10px;
-}
-
-.calendar__button {
-    cursor: pointer;
-}
-
-.calendar__days {
-    list-style: none;
-}
-
-.calendar__table, .calendar__days {
-    display: grid;
-    grid-template-columns: repeat(7,14%);
-    grid-row-gap: 1px;
-    grid-column-gap: 1px;
-    justify-content: space-between;
-    padding: 10px;
-}
-
-.calendar__date {
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-}
-
-.calendar__date_active {
-    background: rgba(0,128,128,0.3);
-}
-
-.calendar__date_disabled {
-    background: rgba(0,128,128,0.1);
-    opacity: 0.3;
-    pointer-events: none;
-    cursor: default;
-}
-
-.calendar__date_today {
-    background:rgba(0,128,128,1);
-    border-radius: 3px;
 }
