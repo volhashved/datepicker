@@ -2,59 +2,76 @@
 
 class Datepicker {
     constructor (minDate, maxDate) {
-        this.minDate = minDate || new Date(new Date().getFullYear(), 0, 1);
-        this.maxDate = maxDate || new Date(new Date().getFullYear(), 12, 0);
-        this.isOpened = false;
-        this.now = new Date();
-        this.weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-        this.monthDates = [];
-        this.selectedDate = null;
+        this._minDate = minDate || new Date(new Date().getFullYear(), 0, 1);
+        this._maxDate = maxDate || new Date(new Date().getFullYear(), 12, 0);
+        this._selectedDate = null;
+        this._isOpened = false;
+        this._now = new Date();
+        this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+        this._monthDates = [];
         this.initCalendar();
     }
 
     _setYear() {
-        this.year = this.now.getFullYear();
+        this.year = this._now.getFullYear();
     }
 
     _setMonth() {
-        this.month = this.now.getMonth(); 
+        this.month = this._now.getMonth(); 
         this.monthCounter = this.month;
     }
 
     _setCurrentDay() {
-        this.currentDay = this.now.getDate();
+        this.currentDay = this._now.getDate();
     }
 
-    _validateDate() {
-        if (this.minDate > this.maxDate) {
-            throw new Error("Dates are invalid");
+    _validateMinMaxDates() {
+        if (this._minDate > this._maxDate) throw new CustomError("Dates are invalid");
+    }
+
+    _validateDateFormat() {
+        if (this._minDate instanceof Date && this._maxDate instanceof Date) return;
+        throw new CustomError("Enter a valid date format");
+    }
+
+    get minDate() {
+        return this._minDate;
+    }
+
+    set minDate(minVal) {
+        if (minVal instanceof Date) {
+            this._minDate = minVal;
+        }
+        else {
+            throw new CustomError("Enter a valid date format");
         }
     }
 
-    get minDat() {
-        return this.minDate;
+    get maxDate() {
+        return this._maxDate;
     }
 
-    set minDat(minVal) {
-        this.minDate = minVal;
+    set maxDate(maxVal) {
+        if (maxVal instanceof Date) {
+            this._maxDate = maxVal;
+        }
+        else {
+            throw new CustomError("Enter a valid date format");
+        }
     }
 
-    get maxDat() {
-        return this.maxDate;
+    get selectedDate() {
+        return this._selectedDate;
     }
 
-    set maxDat(maxVal) {
-        this.maxDate = maxVal;
+    set selectedDate(newDate) {
+        if (newDate instanceof Date) {
+            this._selectedDate = newDate;
+        }
+        else {
+            throw new CustomError("Enter a valid date format");
+        }
     }
-
-    get selectedDat() {
-        return this.selectedDate;
-    }
-
-    // set selectedDat(newDate) {
-    //     this.selectedDate = newDate;
-    //     this.open();
-    // }
 
     _renderInput() {
         this.datePicker = document.createElement("div");
@@ -120,7 +137,7 @@ class Datepicker {
         this.calendarDates.className = "calendar__days";
         this.calendar.appendChild(this.calendarDates);
 
-        this.weekDays.forEach((item) => {
+        this._weekDays.forEach((item) => {
             const wkDay = document.createElement("li");
             wkDay.textContent = item;
             this.calendarDates.appendChild(wkDay);
@@ -158,10 +175,10 @@ class Datepicker {
         for(let i = 1; i <= lastDay; i++) {
             const calendarDay = document.createElement("div");
             calendarDay.className = "calendar__date";
-            this.monthDates.push(calendarDay);
+            this._monthDates.push(calendarDay);
             const theDate = new Date(yearPar, monthPar, i);
 
-            if(theDate < this.minDate || theDate > this.maxDate) {
+            if(theDate < this._minDate || theDate > this._maxDate) {
                 calendarDay.className += " calendar__date_disabled";
             }
             else {
@@ -197,10 +214,10 @@ class Datepicker {
     }
 
     _selectDate() {
-        this.monthDates.map(item => {
+        this._monthDates.map(item => {
             item.addEventListener("click", (e) => {
-                this.selectedDate = new Date(this.year, this.monthCounter, e.target.textContent);
-                this.inputField.value = `${this.selectedDate.getDate()}/${this.selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
+                this._selectedDate = new Date(this.year, this.monthCounter, e.target.textContent);
+                this.inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
                 this.close();
             });
         });
@@ -210,29 +227,38 @@ class Datepicker {
         e.stopPropagation();
         this._setMonth();
         this._renderCalendarDates(this.year, this.month);
+        if (this._now < this._minDate || this._now > this._maxDate) return;
         this.inputField.value = `${this.currentDay}/${this.month + 1}/${this.year}`;
     }
 
     open(e) {
         e.stopPropagation();
-        if(!this.selectedDate) {
+        
+        if(!this._selectedDate) {
+            this._setMonth();
             this._renderCalendarDates(this.year, this.month);
         }
-        if(!this.isOpened) {
+        else {
+            this._renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
+            this.inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
+        }
+
+        if(!this._isOpened) {
             this.calendar.classList.remove('calendar_hidden');
-            this.isOpened = true;
+            this._isOpened = true;
         }
     }
 
     close() {
-       if (this.isOpened) {
+       if (this._isOpened) {
             this.calendar.classList.add('calendar_hidden');
-            this.isOpened = false;
+            this._isOpened = false;
        }
     }
 
     initCalendar() {
-        this._validateDate();
+        this._validateMinMaxDates();
+        this._validateDateFormat();
         this._setYear();
         this._setMonth();
         this._setCurrentDay();
@@ -244,5 +270,12 @@ class Datepicker {
         this.previousMonthBtn.addEventListener("click", this._renderPrevMonth.bind(this));
         this.calendar.addEventListener("click", (e) => e.stopPropagation());
         window.addEventListener("click", this.close.bind(this));
+    }
+}
+
+class CustomError extends Error {
+    constructor(message) {
+       super(message);
+       this.name = "MyCustomError";
     }
 }
