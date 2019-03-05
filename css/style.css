@@ -19,3 +19,13 @@ body {
     text-align: center;
     margin: 20px 0;
 }
+
+input {
+    max-width:  400px;
+    display: block;
+    margin: 15px auto;
+    padding: 7px 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    outline: none;   
+}

@@ -1,10 +1,12 @@
 'use strict';
 
 class Datepicker {
-    constructor (minDate, maxDate) {
-        this._minDate = minDate || new Date(new Date().getFullYear(), 0, 1);
-        this._maxDate = maxDate || new Date(new Date().getFullYear(), 12, 0);
+    constructor (minDate = new Date(new Date().getFullYear(), 0, 1), maxDate = new Date(new Date().getFullYear(), 12, 0), inputSelector) {
+        this._minDate = minDate;
+        this._maxDate = maxDate;
         this._selectedDate = null;
+        this._inputField = null;
+        this._inputSelector = inputSelector;
         this._isOpened = false;
         this._now = new Date();
         this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
@@ -73,27 +75,40 @@ class Datepicker {
         }
     }
 
-    _renderInput() {
-        this.datePicker = document.createElement("div");
-        this.datePicker.className = "datepicker";
-        document.body.appendChild(this.datePicker);
-
-        this.inputWrap = document.createElement("div");
-        this.inputWrap.className = "datepicker__date";
-        this.datePicker.appendChild(this.inputWrap);
-
-        this.inputLabel = document.createElement("label");
-        this.inputLabel.className = "datepicker__label";
-        this.inputLabel.textContent = "Select date";
-        this.inputWrap.appendChild(this.inputLabel);
-
-        this.inputField = document.createElement("input");
-        this.inputField.className = "datepicker__input";
-        this.inputField.setAttribute("type", "text");
-        this.inputLabel.appendChild(this.inputField);
+    _render(inputSelector) {
+        if(inputSelector) {
+            this._inputField = inputSelector;
+        }
+        else {
+            throw new CustomError("Input is not found");
+        }
     }
 
+    // _renderInput() {
+    //     this.datePicker = document.createElement("div");
+    //     this.datePicker.className = "datepicker";
+    //     document.body.appendChild(this.datePicker);
+
+    //     this.inputWrap = document.createElement("div");
+    //     this.inputWrap.className = "datepicker__date";
+    //     this.datePicker.appendChild(this.inputWrap);
+
+    //     this.inputLabel = document.createElement("label");
+    //     this.inputLabel.className = "datepicker__label";
+    //     this.inputLabel.textContent = "Select date";
+    //     this.inputWrap.appendChild(this.inputLabel);
+
+    //     this.inputField = document.createElement("input");
+    //     this.inputField.className = "datepicker__input";
+    //     this.inputField.setAttribute("type", "text");
+    //     this.inputLabel.appendChild(this.inputField);
+    // }
+
     _renderCalendar() {
+        this.datePicker = document.createElement("div");
+        this.datePicker.className = "datepicker";
+        document.body.insertBefore(this.datePicker, this._inputSelector);
+
         this.calendWrap = document.createElement("div");
         this.calendWrap.className = "datepicker__content";
         this.datePicker.appendChild(this.calendWrap);
@@ -217,7 +232,7 @@ class Datepicker {
         this._monthDates.map(item => {
             item.addEventListener("click", (e) => {
                 this._selectedDate = new Date(this.year, this.monthCounter, e.target.textContent);
-                this.inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
+                this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
                 this.close();
             });
         });
@@ -226,9 +241,10 @@ class Datepicker {
     _openCurrenMonth(e) {
         e.stopPropagation();
         this._setMonth();
+        this._selectedDate = new Date(this.year, this.month);
         this._renderCalendarDates(this.year, this.month);
         if (this._now < this._minDate || this._now > this._maxDate) return;
-        this.inputField.value = `${this.currentDay}/${this.month + 1}/${this.year}`;
+        this._inputField.value = `${this.currentDay}/${this.month + 1}/${this.year}`;
     }
 
     open(e) {
@@ -240,7 +256,7 @@ class Datepicker {
         }
         else {
             this._renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
-            this.inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
+            this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
         }
 
         if(!this._isOpened) {
@@ -262,9 +278,9 @@ class Datepicker {
         this._setYear();
         this._setMonth();
         this._setCurrentDay();
-        this._renderInput();
         this._renderCalendar();
-        this.inputField.addEventListener("click", this.open.bind(this));
+        this._render(this._inputSelector);
+        this._inputField.addEventListener("click", this.open.bind(this));
         this.calendarLabel.addEventListener("click", this._openCurrenMonth.bind(this));
         this.nextMonthBtn.addEventListener("click", this._renderNextMonth.bind(this));
         this.previousMonthBtn.addEventListener("click", this._renderPrevMonth.bind(this));
