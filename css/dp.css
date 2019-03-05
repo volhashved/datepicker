@@ -1,22 +1,5 @@
-.datepicker {
-    margin: 50px 0;
-}
-
-.datepicker__date {
-    width: 400px;
-    margin: 0 auto;
-}
-
-.datepicker__input {
-    width:  100%;
-    padding: 7px 10px;
-    border-radius: 3px;
-    border: 1px solid #ccc;
-    outline: none;
-}
-
 .datepicker__content {
-    width: 400px;
+    max-width: 400px;
     margin: auto;
     text-align: center;
 }
@@ -95,12 +78,18 @@
 
 .calendar__date {
     padding: 10px;
+    border: 2px solid transparent;
     text-align: center;
     cursor: pointer;
 }
 
 .calendar__date_active {
     background: rgba(0,128,128,0.3);
+    transition: 0.4s;
+}
+
+.calendar__date_active:hover {
+    background: rgba(0,128,128,0.5);
 }
 
 .calendar__date_disabled {
@@ -112,5 +101,11 @@
 
 .calendar__date_today {
     background:rgba(0,128,128,1);
+    border-radius: 3px;
+}
+
+.calendar__date_selected {
+    background: rgba(0,128,128,0.5);
+    border: 2px solid teal;
     border-radius: 3px;
 }

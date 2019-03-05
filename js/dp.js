@@ -107,7 +107,7 @@ class Datepicker {
     _renderCalendar() {
         this.datePicker = document.createElement("div");
         this.datePicker.className = "datepicker";
-        document.body.insertBefore(this.datePicker, this._inputSelector);
+        this._inputSelector.parentNode.insertBefore(this.datePicker, this._inputSelector.nextSibling);
 
         this.calendWrap = document.createElement("div");
         this.calendWrap.className = "datepicker__content";
@@ -202,6 +202,10 @@ class Datepicker {
 
             if(yearPar === this.year && monthPar === this.month && i === this.currentDay) {
                 calendarDay.className += " calendar__date_today";
+            }        
+            
+            if(+theDate === +this._selectedDate) {
+                calendarDay.className += " calendar__date_selected";
             }
 
             calendarDay.innerHTML = `${i}`;
@@ -238,12 +242,17 @@ class Datepicker {
         });
     }
 
-    _openCurrenMonth(e) {
+    _selectToday(e) {
         e.stopPropagation();
-        this._setMonth();
-        this._selectedDate = new Date(this.year, this.month);
+        this._setMonth();        
+        
+        if (this._now < this._minDate || this._now > this._maxDate) {
+            this._renderCalendarDates(this.year, this.month);
+            return;
+        }        
+
+        this._selectedDate = new Date(this.year, this.month, this.currentDay);        
         this._renderCalendarDates(this.year, this.month);
-        if (this._now < this._minDate || this._now > this._maxDate) return;
         this._inputField.value = `${this.currentDay}/${this.month + 1}/${this.year}`;
     }
 
@@ -281,7 +290,7 @@ class Datepicker {
         this._renderCalendar();
         this._render(this._inputSelector);
         this._inputField.addEventListener("click", this.open.bind(this));
-        this.calendarLabel.addEventListener("click", this._openCurrenMonth.bind(this));
+        this.calendarLabel.addEventListener("click", this._selectToday.bind(this));
         this.nextMonthBtn.addEventListener("click", this._renderNextMonth.bind(this));
         this.previousMonthBtn.addEventListener("click", this._renderPrevMonth.bind(this));
         this.calendar.addEventListener("click", (e) => e.stopPropagation());
