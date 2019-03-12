@@ -248,6 +248,16 @@ class Datepicker {
        }
     }
 
+    destroy() {
+        this._inputField.removeEventListener("click", this.open.bind(this));
+        this.calendarLabel.removeEventListener("click", this._selectToday.bind(this));
+        this.nextMonthBtn.removeEventListener("click", this._renderNextMonth.bind(this));
+        this.previousMonthBtn.removeEventListener("click", this._renderPrevMonth.bind(this));
+        this.calendar.removeEventListener("click", (e) => e.stopPropagation());
+        window.removeEventListener("click", this.close.bind(this));
+        this.datePicker.parentNode.removeChild(this.datePicker);
+    }
+
     render(input) {
         if(input) {
             this._inputField = input;
