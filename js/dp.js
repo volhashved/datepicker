@@ -81,16 +81,12 @@ class Datepicker {
 
     _renderCalendar() {
         this._datePicker = document.createElement("div");
-        this._datePicker.className = "datepicker";
+        this._datePicker.className = "datepicker datepicker_hidden";
         this._inputField.parentNode.insertBefore(this._datePicker, this._inputField.nextSibling);
 
-        this._calendWrap = document.createElement("div");
-        this._calendWrap.className = "datepicker__content";
-        this._datePicker.appendChild(this._calendWrap);
-
         this._calendar = document.createElement("div");
-        this._calendar.className = "calendar calendar_hidden";
-        this._calendWrap.appendChild(this._calendar);
+        this._calendar.className = "calendar";
+        this._datePicker.appendChild(this._calendar);
 
         this._renderLabel();
         this._renderHeader();
@@ -98,8 +94,9 @@ class Datepicker {
     }
 
     _renderLabel() {
-        this._calendarLabel = document.createElement("h2");
+        this._calendarLabel = document.createElement("button");
         this._calendarLabel.className = "calendar__label";
+        this._calendarLabel.setAttribute("title", "Today");
         this._calendar.appendChild(this._calendarLabel);
         this._calendarLabel.innerHTML = `${this._currentDay}/${this._month+1}/${this._year}`;
     }
@@ -111,14 +108,16 @@ class Datepicker {
 
         this._previousMonthBtn = document.createElement("button");
         this._previousMonthBtn.className = "calendar__button calendar__button_prev";
+        this._previousMonthBtn.setAttribute("title", "Previous month");
         this._calendarHeader.appendChild(this._previousMonthBtn);
 
-        this._activeMonth = document.createElement("h3");
+        this._activeMonth = document.createElement("div");
         this._activeMonth.className = "calendar__month";
         this._calendarHeader.appendChild(this._activeMonth);
 
         this._nextMonthBtn = document.createElement("button");
         this._nextMonthBtn.className = "calendar__button calendar__button_next";
+        this._nextMonthBtn.setAttribute("title", "Next month");
         this._calendarHeader.appendChild(this._nextMonthBtn);
     }
 
@@ -249,14 +248,14 @@ class Datepicker {
         }
 
         if(!this._isOpened) {
-            this._calendar.classList.remove('calendar_hidden');
+            this._datePicker.classList.remove('datepicker_hidden');
             this._isOpened = true;
         }
     }
 
     close() {
        if (this._isOpened) {
-            this._calendar.classList.add('calendar_hidden');
+            this._datePicker.classList.add('datepicker_hidden');
             this._isOpened = false;
        }
     }
