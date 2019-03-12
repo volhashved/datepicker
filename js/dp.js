@@ -4,10 +4,13 @@ class Datepicker {
     constructor (minDate = new Date(new Date().getFullYear(), 0, 1), maxDate = new Date(new Date().getFullYear(), 12, 0)) {
         this.minDate = minDate;
         this.maxDate = maxDate;
+        this._now = new Date();
+        this._year = null;
+        this._month = null;
+        this._currentDay = null;
         this._selectedDate = null;
         this._inputField = null;
         this._isOpened = false;
-        this._now = new Date();
         this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
         this._monthDates = [];
         this._openRef = this.open.bind(this);
@@ -19,16 +22,16 @@ class Datepicker {
     }
 
     _setYear() {
-        this.year = this._now.getFullYear();
+        this._year = this._now.getFullYear();
     }
 
     _setMonth() {
-        this.month = this._now.getMonth(); 
-        this.monthCounter = this.month;
+        this._month = this._now.getMonth(); 
+        this._monthCounter = this._month;
     }
 
     _setCurrentDay() {
-        this.currentDay = this._now.getDate();
+        this._currentDay = this._now.getDate();
     }
 
     get minDate() {
@@ -77,17 +80,17 @@ class Datepicker {
     }
 
     _renderCalendar() {
-        this.datePicker = document.createElement("div");
-        this.datePicker.className = "datepicker";
-        this._inputField.parentNode.insertBefore(this.datePicker, this._inputField.nextSibling);
+        this._datePicker = document.createElement("div");
+        this._datePicker.className = "datepicker";
+        this._inputField.parentNode.insertBefore(this._datePicker, this._inputField.nextSibling);
 
-        this.calendWrap = document.createElement("div");
-        this.calendWrap.className = "datepicker__content";
-        this.datePicker.appendChild(this.calendWrap);
+        this._calendWrap = document.createElement("div");
+        this._calendWrap.className = "datepicker__content";
+        this._datePicker.appendChild(this._calendWrap);
 
-        this.calendar = document.createElement("div");
-        this.calendar.className = "calendar calendar_hidden";
-        this.calendWrap.appendChild(this.calendar);
+        this._calendar = document.createElement("div");
+        this._calendar.className = "calendar calendar_hidden";
+        this._calendWrap.appendChild(this._calendar);
 
         this._renderLabel();
         this._renderHeader();
@@ -95,48 +98,48 @@ class Datepicker {
     }
 
     _renderLabel() {
-        this.calendarLabel = document.createElement("h2");
-        this.calendarLabel.className = "calendar__label";
-        this.calendar.appendChild(this.calendarLabel);
-        this.calendarLabel.innerHTML = `${this.currentDay}/${this.month+1}/${this.year}`;
+        this._calendarLabel = document.createElement("h2");
+        this._calendarLabel.className = "calendar__label";
+        this._calendar.appendChild(this._calendarLabel);
+        this._calendarLabel.innerHTML = `${this._currentDay}/${this._month+1}/${this._year}`;
     }
 
     _renderHeader() {
-        this.calendarHeader = document.createElement("div");
-        this.calendarHeader.className = "calendar__header";
-        this.calendar.appendChild(this.calendarHeader);
+        this._calendarHeader = document.createElement("div");
+        this._calendarHeader.className = "calendar__header";
+        this._calendar.appendChild(this._calendarHeader);
 
-        this.previousMonthBtn = document.createElement("button");
-        this.previousMonthBtn.className = "calendar__button calendar__button_prev";
-        this.calendarHeader.appendChild(this.previousMonthBtn);
+        this._previousMonthBtn = document.createElement("button");
+        this._previousMonthBtn.className = "calendar__button calendar__button_prev";
+        this._calendarHeader.appendChild(this._previousMonthBtn);
 
-        this.activeMonth = document.createElement("h3");
-        this.activeMonth.className = "calendar__month";
-        this.calendarHeader.appendChild(this.activeMonth);
+        this._activeMonth = document.createElement("h3");
+        this._activeMonth.className = "calendar__month";
+        this._calendarHeader.appendChild(this._activeMonth);
 
-        this.nextMonthBtn = document.createElement("button");
-        this.nextMonthBtn.className = "calendar__button calendar__button_next";
-        this.calendarHeader.appendChild(this.nextMonthBtn);
+        this._nextMonthBtn = document.createElement("button");
+        this._nextMonthBtn.className = "calendar__button calendar__button_next";
+        this._calendarHeader.appendChild(this._nextMonthBtn);
     }
 
     _renderCalendarTable() {
-        this.calendarDates = document.createElement("ul");
-        this.calendarDates.className = "calendar__days";
-        this.calendar.appendChild(this.calendarDates);
+        this._calendarDates = document.createElement("ul");
+        this._calendarDates.className = "calendar__days";
+        this._calendar.appendChild(this._calendarDates);
 
         this._weekDays.forEach((item) => {
             const wkDay = document.createElement("li");
             wkDay.textContent = item;
-            this.calendarDates.appendChild(wkDay);
+            this._calendarDates.appendChild(wkDay);
         });
 
-        this.calendarTable = document.createElement("div");
-        this.calendarTable.className = "calendar__table";
-        this.calendar.appendChild(this.calendarTable);
+        this._calendarTable = document.createElement("div");
+        this._calendarTable.className = "calendar__table";
+        this._calendar.appendChild(this._calendarTable);
     }
 
     _renderCalendarDates(yearPar, monthPar) {
-        this.activeMonth.innerHTML = `${(new Date(yearPar, monthPar)).toLocaleString("en", {
+        this._activeMonth.innerHTML = `${(new Date(yearPar, monthPar)).toLocaleString("en", {
             year: 'numeric',
             month: 'long'
         })}`;
@@ -150,13 +153,13 @@ class Datepicker {
 
         const ltweekday = (new Date(yearPar, monthPar, lastDay)).getDay();
 
-        this.calendarTable.innerHTML = "";
+        this._calendarTable.innerHTML = "";
 
         for(let i = 1; i < stweekDay; i++) {
             const calendarDay = document.createElement("div");
             calendarDay.className = "calendar__date calendar__date_disabled";
             calendarDay.innerHTML = "";
-            this.calendarTable.appendChild(calendarDay);
+            this._calendarTable.appendChild(calendarDay);
         }
 
         for(let i = 1; i <= lastDay; i++) {
@@ -172,16 +175,16 @@ class Datepicker {
                 calendarDay.className += " calendar__date_active";
             }
 
-            if(yearPar === this.year && monthPar === this.month && i === this.currentDay) {
+            if(yearPar === this._year && monthPar === this._month && i === this._currentDay) {
                 calendarDay.className += " calendar__date_today";
-            }        
-            
+            }
+
             if(+theDate === +this._selectedDate) {
                 calendarDay.className += " calendar__date_selected";
             }
 
             calendarDay.innerHTML = `${i}`;
-            this.calendarTable.appendChild(calendarDay);
+            this._calendarTable.appendChild(calendarDay);
         }
         this._selectDate();
 
@@ -190,25 +193,25 @@ class Datepicker {
             const calendarDay = document.createElement("div");
             calendarDay.className = "calendar__date calendar__date_disabled";
             calendarDay.innerHTML = "";
-            this.calendarTable.appendChild(calendarDay);
+            this._calendarTable.appendChild(calendarDay);
         }
     }
 
     _renderNextMonth() {
-        this.monthCounter = this.monthCounter + 1;
-        this._renderCalendarDates(this.year, this.monthCounter);
+        this._monthCounter = this._monthCounter + 1;
+        this._renderCalendarDates(this._year, this._monthCounter);
     }
 
     _renderPrevMonth() {
-        this.monthCounter = this.monthCounter - 1;
-        this._renderCalendarDates(this.year, this.monthCounter);
+        this._monthCounter = this._monthCounter - 1;
+        this._renderCalendarDates(this._year, this._monthCounter);
     }
 
     _selectDate() {
         this._monthDates.map(item => {
             item.addEventListener("click", (e) => {
-                this._selectedDate = new Date(this.year, this.monthCounter, e.target.textContent);
-                this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
+                this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
+                this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
                 this.close();
             });
         });
@@ -219,13 +222,13 @@ class Datepicker {
         this._setMonth();
 
         if (this._now < this._minDate || this._now > this._maxDate) {
-            this._renderCalendarDates(this.year, this.month);
+            this._renderCalendarDates(this._year, this._month);
             return;
         }
 
-        this._selectedDate = new Date(this.year, this.month, this.currentDay);
-        this._renderCalendarDates(this.year, this.month);
-        this._inputField.value = `${this.currentDay}/${this.month + 1}/${this.year}`;
+        this._selectedDate = new Date(this._year, this._month, this._currentDay);
+        this._renderCalendarDates(this._year, this._month);
+        this._inputField.value = `${this._currentDay}/${this._month + 1}/${this._year}`;
     }
 
     _stopBubbling(e) {
@@ -233,39 +236,39 @@ class Datepicker {
     }
 
     open(e) {
-        this._stopBubbling(e);
+        e.stopPropagation();
 
         if(!this._selectedDate) {
             this._setMonth();
-            this._renderCalendarDates(this.year, this.month);
+            this._renderCalendarDates(this._year, this._month);
         }
         else {
-            this.monthCounter = this._selectedDate.getMonth();
+            this._monthCounter = this._selectedDate.getMonth();
             this._renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
-            this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this.selectedDate.getFullYear()}`;
+            this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
         }
 
         if(!this._isOpened) {
-            this.calendar.classList.remove('calendar_hidden');
+            this._calendar.classList.remove('calendar_hidden');
             this._isOpened = true;
         }
     }
 
     close() {
        if (this._isOpened) {
-            this.calendar.classList.add('calendar_hidden');
+            this._calendar.classList.add('calendar_hidden');
             this._isOpened = false;
        }
     }
 
     destroy() {
         this._inputField.removeEventListener("click", this._openRef);
-        this.calendarLabel.removeEventListener("click", this._selectTodayRef);
-        this.nextMonthBtn.removeEventListener("click", this._nextMonthRef);
-        this.previousMonthBtn.removeEventListener("click", this._prevMonthRef);
-        this.calendar.removeEventListener("click", this._stopBubbling);
+        this._calendarLabel.removeEventListener("click", this._selectTodayRef);
+        this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
+        this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
+        this._calendar.removeEventListener("click", this._stopBubbling);
         window.removeEventListener("click", this._closeRef);
-        this.datePicker.parentNode.removeChild(this.datePicker);
+        this._datePicker.parentNode.removeChild(this.datePicker);
     }
 
     render(input) {
@@ -276,10 +279,10 @@ class Datepicker {
             this._setMonth();
             this._setCurrentDay();
             this._renderCalendar();
-            this.calendarLabel.addEventListener("click", this._selectTodayRef);
-            this.nextMonthBtn.addEventListener("click", this._nextMonthRef);
-            this.previousMonthBtn.addEventListener("click", this._prevMonthRef);
-            this.calendar.addEventListener("click", this._stopBubbling);
+            this._calendarLabel.addEventListener("click", this._selectTodayRef);
+            this._nextMonthBtn.addEventListener("click", this._nextMonthRef);
+            this._previousMonthBtn.addEventListener("click", this._prevMonthRef);
+            this._calendar.addEventListener("click", this._stopBubbling);
             window.addEventListener("click", this._closeRef);
         }
         else {
