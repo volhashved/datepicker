@@ -1,17 +1,15 @@
 'use strict';
 
 class Datepicker {
-    constructor (minDate = new Date(new Date().getFullYear(), 0, 1), maxDate = new Date(new Date().getFullYear(), 12, 0), inputSelector) {
+    constructor (minDate = new Date(new Date().getFullYear(), 0, 1), maxDate = new Date(new Date().getFullYear(), 12, 0)) {
         this.minDate = minDate;
         this.maxDate = maxDate;
         this._selectedDate = null;
         this._inputField = null;
-        this._inputSelector = inputSelector;
         this._isOpened = false;
         this._now = new Date();
         this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
         this._monthDates = [];
-        this.initCalendar();
     }
 
     _setYear() {
@@ -72,19 +70,10 @@ class Datepicker {
         }
     }
 
-    _render(inputSelector) {
-        if(inputSelector) {
-            this._inputField = inputSelector;
-        }
-        else {
-            throw new DateFormatError("Input is not found");
-        }
-    }
-
     _renderCalendar() {
         this.datePicker = document.createElement("div");
         this.datePicker.className = "datepicker";
-        this._inputSelector.parentNode.insertBefore(this.datePicker, this._inputSelector.nextSibling);
+        this._inputField.parentNode.insertBefore(this.datePicker, this._inputField.nextSibling);
 
         this.calendWrap = document.createElement("div");
         this.calendWrap.className = "datepicker__content";
@@ -259,18 +248,23 @@ class Datepicker {
        }
     }
 
-    initCalendar() {
-        this._setYear();
-        this._setMonth();
-        this._setCurrentDay();
-        this._renderCalendar();
-        this._render(this._inputSelector);
-        this._inputField.addEventListener("click", this.open.bind(this));
-        this.calendarLabel.addEventListener("click", this._selectToday.bind(this));
-        this.nextMonthBtn.addEventListener("click", this._renderNextMonth.bind(this));
-        this.previousMonthBtn.addEventListener("click", this._renderPrevMonth.bind(this));
-        this.calendar.addEventListener("click", (e) => e.stopPropagation());
-        window.addEventListener("click", this.close.bind(this));
+    render(input) {
+        if(input) {
+            this._inputField = input;
+            this._inputField.addEventListener("click", this.open.bind(this));
+            this._setYear();
+            this._setMonth();
+            this._setCurrentDay();
+            this._renderCalendar();
+            this.calendarLabel.addEventListener("click", this._selectToday.bind(this));
+            this.nextMonthBtn.addEventListener("click", this._renderNextMonth.bind(this));
+            this.previousMonthBtn.addEventListener("click", this._renderPrevMonth.bind(this));
+            this.calendar.addEventListener("click", (e) => e.stopPropagation());
+            window.addEventListener("click", this.close.bind(this));
+        }
+        else {
+            throw new InputError("Input is not found");
+        }
     }
 }
 
@@ -285,5 +279,12 @@ class DateValueError extends Error {
     constructor(message) {
        super(message);
        this.name = "DateValueError";
+    }
+}
+
+class InputError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "InputError";
     }
 }
