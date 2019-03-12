@@ -10,6 +10,12 @@ class Datepicker {
         this._now = new Date();
         this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
         this._monthDates = [];
+        this._openRef = this.open.bind(this);
+        this._closeRef = this.close.bind(this);
+        this._selectTodayRef = this._selectToday.bind(this);
+        this._nextMonthRef = this._renderNextMonth.bind(this);
+        this._prevMonthRef = this._renderPrevMonth.bind(this);
+        this._stopBubblingRef = this._stopBubbling.bind(this);
     }
 
     _setYear() {
@@ -222,8 +228,12 @@ class Datepicker {
         this._inputField.value = `${this.currentDay}/${this.month + 1}/${this.year}`;
     }
 
-    open(e) {
+    _stopBubbling(e) {
         e.stopPropagation();
+    }
+
+    open(e) {
+        this._stopBubbling(e);
 
         if(!this._selectedDate) {
             this._setMonth();
@@ -249,28 +259,28 @@ class Datepicker {
     }
 
     destroy() {
-        this._inputField.removeEventListener("click", this.open.bind(this));
-        this.calendarLabel.removeEventListener("click", this._selectToday.bind(this));
-        this.nextMonthBtn.removeEventListener("click", this._renderNextMonth.bind(this));
-        this.previousMonthBtn.removeEventListener("click", this._renderPrevMonth.bind(this));
-        this.calendar.removeEventListener("click", (e) => e.stopPropagation());
-        window.removeEventListener("click", this.close.bind(this));
+        this._inputField.removeEventListener("click", this._openRef);
+        this.calendarLabel.removeEventListener("click", this._selectTodayRef);
+        this.nextMonthBtn.removeEventListener("click", this._nextMonthRef);
+        this.previousMonthBtn.removeEventListener("click", this._prevMonthRef);
+        this.calendar.removeEventListener("click", this._stopBubbling);
+        window.removeEventListener("click", this._closeRef);
         this.datePicker.parentNode.removeChild(this.datePicker);
     }
 
     render(input) {
         if(input) {
             this._inputField = input;
-            this._inputField.addEventListener("click", this.open.bind(this));
+            this._inputField.addEventListener("click", this._openRef);
             this._setYear();
             this._setMonth();
             this._setCurrentDay();
             this._renderCalendar();
-            this.calendarLabel.addEventListener("click", this._selectToday.bind(this));
-            this.nextMonthBtn.addEventListener("click", this._renderNextMonth.bind(this));
-            this.previousMonthBtn.addEventListener("click", this._renderPrevMonth.bind(this));
-            this.calendar.addEventListener("click", (e) => e.stopPropagation());
-            window.addEventListener("click", this.close.bind(this));
+            this.calendarLabel.addEventListener("click", this._selectTodayRef);
+            this.nextMonthBtn.addEventListener("click", this._nextMonthRef);
+            this.previousMonthBtn.addEventListener("click", this._prevMonthRef);
+            this.calendar.addEventListener("click", this._stopBubbling);
+            window.addEventListener("click", this._closeRef);
         }
         else {
             throw new InputError("Input is not found");
