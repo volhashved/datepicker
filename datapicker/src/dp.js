@@ -1,39 +1,6 @@
 'use strict';
 
 class Datepicker {
-    constructor (minDate = new Date(new Date().getFullYear(), 0, 1), maxDate = new Date(new Date().getFullYear(), 12, 0)) {
-        this.minDate = minDate;
-        this.maxDate = maxDate;
-        this._now = new Date();
-        this._year = null;
-        this._month = null;
-        this._currentDay = null;
-        this._selectedDate = null;
-        this._inputField = null;
-        this._isOpened = false;
-        this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-        this._monthDates = [];
-        this._openRef = this.open.bind(this);
-        this._closeRef = this.close.bind(this);
-        this._selectTodayRef = this._selectToday.bind(this);
-        this._nextMonthRef = this._renderNextMonth.bind(this);
-        this._prevMonthRef = this._renderPrevMonth.bind(this);
-        this._stopBubblingRef = this._stopBubbling.bind(this);
-    }
-
-    _setYear() {
-        this._year = this._now.getFullYear();
-    }
-
-    _setMonth() {
-        this._month = this._now.getMonth(); 
-        this._monthCounter = this._month;
-    }
-
-    _setCurrentDay() {
-        this._currentDay = this._now.getDate();
-    }
-
     get minDate() {
         return this._minDate;
     }
@@ -77,6 +44,101 @@ class Datepicker {
         else {
             throw new DateFormatError("Enter a valid date format");
         }
+    }
+
+    constructor (
+        minDate = new Date(new Date().getFullYear(), 0, 1), 
+        maxDate = new Date(new Date().getFullYear(), 12, 0)
+        ) {
+        this.minDate = minDate;
+        this.maxDate = maxDate;
+        this.init();
+    }
+
+    init() {
+        this._now = new Date();
+        this._year = null;
+        this._month = null;
+        this._currentDay = null;
+        this._selectedDate = null;
+        this._inputField = null;
+        this._isOpened = false;
+        this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+        this._monthDates = [];
+        this._openRef = this.open.bind(this);
+        this._closeRef = this.close.bind(this);
+        this._selectTodayRef = this._selectToday.bind(this);
+        this._nextMonthRef = this._renderNextMonth.bind(this);
+        this._prevMonthRef = this._renderPrevMonth.bind(this);
+        this._stopBubblingRef = this._stopBubbling.bind(this);
+    }
+
+    open(e) {
+        e.stopPropagation();
+
+        if(!this._selectedDate) {
+            this._setMonth();
+            this._renderCalendarDates(this._year, this._month);
+        }
+        else {
+            this._monthCounter = this._selectedDate.getMonth();
+            this._renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
+            this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
+        }
+
+        if(!this._isOpened) {
+            this._datePicker.classList.remove('datepicker_hidden');
+            this._isOpened = true;
+        }
+    }
+
+    close() {
+       if (this._isOpened) {
+            this._datePicker.classList.add('datepicker_hidden');
+            this._isOpened = false;
+       }
+    }
+
+    destroy() {
+        this._inputField.removeEventListener("click", this._openRef);
+        this._calendarLabel.removeEventListener("click", this._selectTodayRef);
+        this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
+        this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
+        this._calendar.removeEventListener("click", this._stopBubbling);
+        window.removeEventListener("click", this._closeRef);
+        this._datePicker.parentNode.removeChild(this.datePicker);
+    }
+
+    render(input) {
+        if(input) {
+            this._inputField = input;
+            this._inputField.addEventListener("click", this._openRef);
+            this._setYear();
+            this._setMonth();
+            this._setCurrentDay();
+            this._renderCalendar();
+            this._calendarLabel.addEventListener("click", this._selectTodayRef);
+            this._nextMonthBtn.addEventListener("click", this._nextMonthRef);
+            this._previousMonthBtn.addEventListener("click", this._prevMonthRef);
+            this._calendar.addEventListener("click", this._stopBubbling);
+            window.addEventListener("click", this._closeRef);
+        }
+        else {
+            throw new InputError("Input is not found");
+        }
+    }
+
+    _setYear() {
+        this._year = this._now.getFullYear();
+    }
+
+    _setMonth() {
+        this._month = this._now.getMonth(); 
+        this._monthCounter = this._month;
+    }
+
+    _setCurrentDay() {
+        this._currentDay = this._now.getDate();
     }
 
     _renderCalendar() {
@@ -232,81 +294,5 @@ class Datepicker {
 
     _stopBubbling(e) {
         e.stopPropagation();
-    }
-
-    open(e) {
-        e.stopPropagation();
-
-        if(!this._selectedDate) {
-            this._setMonth();
-            this._renderCalendarDates(this._year, this._month);
-        }
-        else {
-            this._monthCounter = this._selectedDate.getMonth();
-            this._renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
-            this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
-        }
-
-        if(!this._isOpened) {
-            this._datePicker.classList.remove('datepicker_hidden');
-            this._isOpened = true;
-        }
-    }
-
-    close() {
-       if (this._isOpened) {
-            this._datePicker.classList.add('datepicker_hidden');
-            this._isOpened = false;
-       }
-    }
-
-    destroy() {
-        this._inputField.removeEventListener("click", this._openRef);
-        this._calendarLabel.removeEventListener("click", this._selectTodayRef);
-        this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
-        this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
-        this._calendar.removeEventListener("click", this._stopBubbling);
-        window.removeEventListener("click", this._closeRef);
-        this._datePicker.parentNode.removeChild(this.datePicker);
-    }
-
-    render(input) {
-        if(input) {
-            this._inputField = input;
-            this._inputField.addEventListener("click", this._openRef);
-            this._setYear();
-            this._setMonth();
-            this._setCurrentDay();
-            this._renderCalendar();
-            this._calendarLabel.addEventListener("click", this._selectTodayRef);
-            this._nextMonthBtn.addEventListener("click", this._nextMonthRef);
-            this._previousMonthBtn.addEventListener("click", this._prevMonthRef);
-            this._calendar.addEventListener("click", this._stopBubbling);
-            window.addEventListener("click", this._closeRef);
-        }
-        else {
-            throw new InputError("Input is not found");
-        }
-    }
-}
-
-class DateFormatError extends Error {
-    constructor(message) {
-       super(message);
-       this.name = "DateFormatError";
-    }
-}
-
-class DateValueError extends Error {
-    constructor(message) {
-       super(message);
-       this.name = "DateValueError";
-    }
-}
-
-class InputError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "InputError";
     }
 }
