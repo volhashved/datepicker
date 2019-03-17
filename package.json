@@ -1,0 +1,23 @@
+{
+  "name": "gte-datepicker",
+  "version": "1.0.0",
+  "description": "<h1>Date picker application</h1>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oleg-vasilyev/gte-datepicker.git"
+  },
+  "author": "Olga Shved",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oleg-vasilyev/gte-datepicker/issues"
+  },
+  "homepage": "https://github.com/oleg-vasilyev/gte-datepicker#readme",
+  "devDependencies": {
+    "eslint": "^5.15.2",
+    "eslint-plugin-vue": "^5.2.2"
+  }
+}
