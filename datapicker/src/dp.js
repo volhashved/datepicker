@@ -1,6 +1,6 @@
-'use strict';
+import { DateFormatError, DateValueError, InputError } from './dp-errors.js';
 
-class Datepicker {
+export default class Datepicker {
     get minDate() {
         return this._minDate;
     }

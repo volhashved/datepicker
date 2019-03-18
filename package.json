@@ -18,6 +18,8 @@
   "homepage": "https://github.com/oleg-vasilyev/gte-datepicker#readme",
   "devDependencies": {
     "eslint": "^5.15.2",
-    "eslint-plugin-vue": "^5.2.2"
+    "eslint-plugin-vue": "^5.2.2",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
   }
 }

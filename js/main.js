@@ -1,5 +1,7 @@
 'use strict';
 
+import Datepicker from '../datapicker/src/dp.js';
+
 const dp1 = new Datepicker(new Date(2019, 1, 5), new Date(2020, 3, 20));
 dp1.render(document.querySelectorAll("input")[0]);
 // dp1.minDate = (new Date(2019, 1, 6));
