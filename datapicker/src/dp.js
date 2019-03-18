@@ -67,6 +67,7 @@ export default class Datepicker {
         this._monthDates = [];
         this._openRef = this.open.bind(this);
         this._closeRef = this.close.bind(this);
+        this._handleKeypressRef = this.handleKeypress.bind(this);
         this._selectTodayRef = this._selectToday.bind(this);
         this._nextMonthRef = this._renderNextMonth.bind(this);
         this._prevMonthRef = this._renderPrevMonth.bind(this);
@@ -106,7 +107,30 @@ export default class Datepicker {
         this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
         this._calendar.removeEventListener("click", this._stopBubbling);
         window.removeEventListener("click", this._closeRef);
+        window.removeEventListener("keyup", this._handleKeypressRef);
         this._datePicker.parentNode.removeChild(this.datePicker);
+    }
+
+    handleKeypress(e) {
+        const key = e.which || e.keyCode;
+
+        switch(key) {
+            case 13:
+            this.open(e);
+            break;
+
+            case 27:
+            this.close();
+            break;
+
+            case 39:
+            this._renderNextMonth();
+            break;
+
+            case 37:
+            this._renderPrevMonth();
+            break;
+        }
     }
 
     render(input) {
@@ -122,6 +146,7 @@ export default class Datepicker {
             this._previousMonthBtn.addEventListener("click", this._prevMonthRef);
             this._calendar.addEventListener("click", this._stopBubbling);
             window.addEventListener("click", this._closeRef);
+            window.addEventListener("keyup", this._handleKeypressRef);
         }
         else {
             throw new InputError("Input is not found");
@@ -217,23 +242,21 @@ export default class Datepicker {
         this._calendarTable.innerHTML = "";
 
         for(let i = 1; i < stweekDay; i++) {
-            const calendarDay = document.createElement("div");
-            calendarDay.className = "calendar__date calendar__date_disabled";
+            const calendarDay = document.createElement("button");
+            calendarDay.className = "calendar__date";
+            calendarDay.setAttribute("disabled", "disabled");
             calendarDay.innerHTML = "";
             this._calendarTable.appendChild(calendarDay);
         }
 
         for(let i = 1; i <= lastDay; i++) {
-            const calendarDay = document.createElement("div");
+            const calendarDay = document.createElement("button");
             calendarDay.className = "calendar__date";
             this._monthDates.push(calendarDay);
             const theDate = new Date(yearPar, monthPar, i);
 
             if(theDate < this._minDate || theDate > this._maxDate) {
-                calendarDay.className += " calendar__date_disabled";
-            }
-            else {
-                calendarDay.className += " calendar__date_active";
+                calendarDay.setAttribute("disabled", "disabled");
             }
 
             if(yearPar === this._year && monthPar === this._month && i === this._currentDay) {
@@ -251,8 +274,9 @@ export default class Datepicker {
 
         if (ltweekday === 0) return;
         for(let i = ltweekday; i < 7; i++) {
-            const calendarDay = document.createElement("div");
-            calendarDay.className = "calendar__date calendar__date_disabled";
+            const calendarDay = document.createElement("button");
+            calendarDay.className = "calendar__date";
+            calendarDay.setAttribute("disabled", "disabled");
             calendarDay.innerHTML = "";
             this._calendarTable.appendChild(calendarDay);
         }

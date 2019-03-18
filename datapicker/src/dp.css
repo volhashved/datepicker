@@ -15,7 +15,6 @@
 .calendar__label {
     width: 100%;
     border: none;
-    outline: none;
     background: rgba(0, 128, 128);
     color: white;
     font-size: 1.2em;
@@ -50,7 +49,6 @@
     cursor: pointer;
     background: inherit;
     border: none;
-    outline: none;    
 }
 
 .calendar__button:hover:after{
@@ -94,6 +92,7 @@
     grid-column-gap: 1px;
     justify-content: space-between;
     padding: 10px;
+    text-align: center;
 }
 
 .calendar__date {
@@ -101,23 +100,20 @@
     border: 2px solid transparent;
     text-align: center;
     cursor: pointer;
-}
-
-.calendar__date_active {
     background: rgba(0,128,128,0.3);
     transition: 0.4s;
 }
 
-.calendar__date_active:hover {
+.calendar__date:hover {
     background: rgba(0,128,128,0.5);
 }
 
-.calendar__date_active:active{
+.calendar__date:active{
     background: rgba(0,128,128,0.7);
     transition: none;
 }
 
-.calendar__date_disabled {
+.calendar__date:disabled {
     background: rgba(0,128,128,0.1);
     opacity: 0.3;
     pointer-events: none;
@@ -125,12 +121,12 @@
 }
 
 .calendar__date_today {
-    background:rgba(0,128,128,1);
+    background:rgba(0,128,128,1) !important;
     border-radius: 3px;
 }
 
 .calendar__date_selected {
-    background: rgba(0,128,128,0.7);
+    background: rgba(0,128,128,0.7) !important;
     border: 2px solid teal;
     border-radius: 3px;
 }
