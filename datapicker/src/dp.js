@@ -21,7 +21,7 @@ export default class Datepicker {
     set maxDate(maxVal) {
         if (maxVal instanceof Date) {
             if(maxVal < this._minDate) {
-                throw new DateValueError("Min date can not be later than max date");
+                throw new DateValueError(`Min date ${this._setDateFormat(this._minDate)} can not be later than max date ${this._setDateFormat(maxVal)}`);
             }
             this._maxDate = maxVal;
         }
@@ -37,7 +37,7 @@ export default class Datepicker {
     set selectedDate(newDate) {
         if (newDate instanceof Date) {
             if(newDate < this._minDate || newDate > this._maxDate) {
-                throw new DateValueError("Selected date should be between min and max date");
+                throw new DateValueError(`Selected date ${this._setDateFormat(newDate)} should be between min ${this._setDateFormat(this._minDate)} and max ${this._setDateFormat(this._maxDate)} dates`);
             }
             this._selectedDate = newDate;
         }
@@ -151,6 +151,10 @@ export default class Datepicker {
         else {
             throw new InputError("Input is not found");
         }
+    }
+
+    _setDateFormat(date) {
+        return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
     }
 
     _setYear() {
@@ -296,7 +300,7 @@ export default class Datepicker {
         this._monthDates.map(item => {
             item.addEventListener("click", (e) => {
                 this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
-                this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
+                this._inputField.value = `${this._setDateFormat(this._selectedDate)}`;
                 this.close();
             });
         });
