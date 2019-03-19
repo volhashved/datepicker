@@ -102,7 +102,7 @@ export default class Datepicker {
 
     destroy() {
         this._inputField.removeEventListener("click", this._openRef);
-        this._calendarLabel.removeEventListener("click", this._selectTodayRef);
+        this._todayLabelBtn.removeEventListener("click", this._selectTodayRef);
         this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
         this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
         this._calendar.removeEventListener("click", this._stopBubbling);
@@ -141,7 +141,7 @@ export default class Datepicker {
             this._setMonth();
             this._setCurrentDay();
             this._renderCalendar();
-            this._calendarLabel.addEventListener("click", this._selectTodayRef);
+            this._todayLabelBtn.addEventListener("click", this._selectTodayRef);
             this._nextMonthBtn.addEventListener("click", this._nextMonthRef);
             this._previousMonthBtn.addEventListener("click", this._prevMonthRef);
             this._calendar.addEventListener("click", this._stopBubbling);
@@ -185,11 +185,15 @@ export default class Datepicker {
     }
 
     _renderLabel() {
-        this._calendarLabel = document.createElement("button");
-        this._calendarLabel.className = "calendar__label";
-        this._calendarLabel.setAttribute("title", "Today");
-        this._calendar.appendChild(this._calendarLabel);
-        this._calendarLabel.innerHTML = `${this._currentDay}/${this._month+1}/${this._year}`;
+        this._todayLabel = document.createElement("div");
+        this._todayLabel.className = "today";
+        this._calendar.appendChild(this._todayLabel);
+
+        this._todayLabelBtn = document.createElement("button");
+        this._todayLabelBtn.className = "today__btn";
+        this._todayLabelBtn.setAttribute("title", "Today");
+        this._todayLabel.appendChild(this._todayLabelBtn);
+        this._todayLabelBtn.innerHTML = `${this._currentDay}/${this._month+1}/${this._year}`;
     }
 
     _renderHeader() {
@@ -197,19 +201,27 @@ export default class Datepicker {
         this._calendarHeader.className = "calendar__header";
         this._calendar.appendChild(this._calendarHeader);
 
+        this._previousMonth = document.createElement("div");
+        this._previousMonth.className = "month-change";
+        this._calendarHeader.appendChild(this._previousMonth);
+
         this._previousMonthBtn = document.createElement("button");
-        this._previousMonthBtn.className = "calendar__button calendar__button_prev";
+        this._previousMonthBtn.className = "month-change__btn month-change__btn_prev";
         this._previousMonthBtn.setAttribute("title", "Previous month");
-        this._calendarHeader.appendChild(this._previousMonthBtn);
+        this._previousMonth.appendChild(this._previousMonthBtn);
 
         this._activeMonth = document.createElement("div");
         this._activeMonth.className = "calendar__month";
         this._calendarHeader.appendChild(this._activeMonth);
 
+        this._nextMonth = document.createElement("div");
+        this._nextMonth.className = "month-change";
+        this._calendarHeader.appendChild(this._nextMonth);
+
         this._nextMonthBtn = document.createElement("button");
-        this._nextMonthBtn.className = "calendar__button calendar__button_next";
+        this._nextMonthBtn.className = "month-change__btn month-change__btn_next";
         this._nextMonthBtn.setAttribute("title", "Next month");
-        this._calendarHeader.appendChild(this._nextMonthBtn);
+        this._nextMonth.appendChild(this._nextMonthBtn);
     }
 
     _renderCalendarTable() {
@@ -248,7 +260,7 @@ export default class Datepicker {
         for(let i = 1; i < stweekDay; i++) {
             const calendarDay = document.createElement("button");
             calendarDay.className = "calendar__date";
-            calendarDay.setAttribute("disabled", "disabled");
+            calendarDay.setAttribute("disabled", "");
             calendarDay.innerHTML = "";
             this._calendarTable.appendChild(calendarDay);
         }
@@ -260,7 +272,7 @@ export default class Datepicker {
             const theDate = new Date(yearPar, monthPar, i);
 
             if(theDate < this._minDate || theDate > this._maxDate) {
-                calendarDay.setAttribute("disabled", "disabled");
+                calendarDay.setAttribute("disabled", "");
             }
 
             if(yearPar === this._year && monthPar === this._month && i === this._currentDay) {
@@ -280,7 +292,7 @@ export default class Datepicker {
         for(let i = ltweekday; i < 7; i++) {
             const calendarDay = document.createElement("button");
             calendarDay.className = "calendar__date";
-            calendarDay.setAttribute("disabled", "disabled");
+            calendarDay.setAttribute("disabled", "");
             calendarDay.innerHTML = "";
             this._calendarTable.appendChild(calendarDay);
         }

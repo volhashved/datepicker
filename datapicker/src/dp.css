@@ -1,4 +1,8 @@
-.datepicker {
+.datepicker_hidden {
+    display: none;
+}
+
+.calendar {
     max-width: 400px;
     margin: auto;
     position: absolute;
@@ -6,30 +10,6 @@
     transform: translateX(-50%);
     width: 100%;
     background: #fff;
-}
-
-.datepicker_hidden {
-    display: none;
-}
-
-.calendar__label {
-    width: 100%;
-    border: none;
-    background: rgba(0, 128, 128);
-    color: white;
-    font-size: 1.2em;
-    font-weight: bold;
-    padding: 15px 10px;
-    cursor: pointer;
-}
-
-.calendar__label:hover {
-    background: rgba(0, 138, 138);
-}
-
-.calendar__label:active {
-    background: rgba(0, 118, 118);
-    transition: none;
 }
 
 .calendar__header {
@@ -44,22 +24,42 @@
     font-weight: bold;
 }
 
-.calendar__button {
+.today__btn {
+    width: 100%;
+    border: none;
+    background: rgba(0, 128, 128);
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 15px 10px;
+    cursor: pointer;
+}
+
+.today__btn:hover {
+    background: rgba(0, 138, 138);
+}
+
+.today__btn:active {
+    background: rgba(0, 118, 118);
+    transition: none;
+}
+
+.month-change__btn {
     padding: 10px;
     cursor: pointer;
     background: inherit;
     border: none;
 }
 
-.calendar__button:hover:after{
+.month-change__btn:hover:after{
     opacity: 0.3;
 }
 
-.calendar__button:active:after{
+.month-change__btn:active:after{
     opacity: 0.8;
 }
 
-.calendar__button_prev:after {
+.month-change__btn_prev:after {
     content: "";
     display: block;
     width: 12px;
@@ -70,7 +70,7 @@
     transform: rotate(45deg);
 }
 
-.calendar__button_next:after {
+.month-change__btn_next:after {
     content: "";
     display: block;
     width: 12px;
@@ -79,6 +79,12 @@
     border-bottom: 2px solid #000;
     opacity: 0.6;
     transform: rotate(-45deg);
+}
+
+.calendar__button {
+    cursor: pointer;
+    background: inherit;
+    border: none;
 }
 
 .calendar__days {

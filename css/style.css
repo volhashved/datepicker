@@ -9,18 +9,18 @@ body {
     background: #eee;
 }
 
-.container {
+.container__content {
     max-width: 980px;
     margin: auto;
     padding: 0 30px;
 }
 
-.heading {
+.header__title {
     text-align: center;
     margin: 20px 0;
 }
 
-.input {
+.input__date {
     width:  100%;
     max-width: 400px;
     display: block;
