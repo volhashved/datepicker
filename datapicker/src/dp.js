@@ -7,6 +7,9 @@ export default class Datepicker {
 
     set minDate(minVal) {
         if (minVal instanceof Date) {
+            if(minVal > this._maxDate) {
+                throw new DateValueError(`Min date  ${this._setDateFormat(minVal)} can not be later than max date ${this._setDateFormat(this._maxDate)}`);
+            }
             this._minDate = minVal;
         }
         else {
@@ -46,12 +49,11 @@ export default class Datepicker {
         }
     }
 
-    constructor (
-        minDate = new Date(new Date().getFullYear(), 0, 1), 
-        maxDate = new Date(new Date().getFullYear(), 12, 0)
-        ) {
-        this.minDate = minDate;
-        this.maxDate = maxDate;
+    constructor (minDate, maxDate) {
+        this._minDate = new Date(new Date().getFullYear(), 0, 1);
+        this._maxDate = new Date(new Date().getFullYear(), 12, 0);
+        this.minDate = minDate || this._minDate;
+        this.maxDate = maxDate || this._maxDate;
         this.init();
     }
 
@@ -101,14 +103,16 @@ export default class Datepicker {
     }
 
     destroy() {
-        this._inputField.removeEventListener("click", this._openRef);
-        this._todayLabelBtn.removeEventListener("click", this._selectTodayRef);
-        this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
-        this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
-        this._calendar.removeEventListener("click", this._stopBubbling);
-        window.removeEventListener("click", this._closeRef);
-        window.removeEventListener("keyup", this._handleKeypressRef);
-        this._datePicker.parentNode.removeChild(this.datePicker);
+        if(this._inputField) {
+            this._inputField.removeEventListener("click", this._openRef);
+            this._todayLabelBtn.removeEventListener("click", this._selectTodayRef);
+            this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
+            this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
+            this._calendar.removeEventListener("click", this._stopBubbling);
+            window.removeEventListener("click", this._closeRef);
+            window.removeEventListener("keyup", this._handleKeypressRef);
+            this._datePicker.parentNode.removeChild(this._datePicker);
+        }
     }
 
     handleKeypress(e) {
@@ -134,7 +138,7 @@ export default class Datepicker {
     }
 
     render(input) {
-        if(input) {
+        if(input && input.nodeName.toLowerCase() === "input") {
             this._inputField = input;
             this._inputField.addEventListener("click", this._openRef);
             this._setYear();
@@ -149,7 +153,7 @@ export default class Datepicker {
             window.addEventListener("keyup", this._handleKeypressRef);
         }
         else {
-            throw new InputError("Input is not found");
+            throw new InputError(`Element ${input.nodeName.toLowerCase()} is not an input`);
         }
     }
 
