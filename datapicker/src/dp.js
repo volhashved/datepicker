@@ -65,11 +65,14 @@ export default class Datepicker {
         this._selectedDate = null;
         this._inputField = null;
         this._isOpened = false;
+        this._isFocused = false;
         this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
         this._monthDates = [];
         this._openRef = this.open.bind(this);
         this._closeRef = this.close.bind(this);
-        this._handleKeypressRef = this.handleKeypress.bind(this);
+        this._onInputFocusRef = this._onInputFocus.bind(this);
+        this._onInputBlurRef = this._onInputBlur.bind(this);
+        this._handleKeypressRef = this._handleKeypress.bind(this);
         this._selectTodayRef = this._selectToday.bind(this);
         this._nextMonthRef = this._renderNextMonth.bind(this);
         this._prevMonthRef = this._renderPrevMonth.bind(this);
@@ -105,6 +108,8 @@ export default class Datepicker {
     destroy() {
         if(this._inputField) {
             this._inputField.removeEventListener("click", this._openRef);
+            this._inputField.removeEventListener("focus", this._onInputFocusRef);
+            this._inputField.removeEventListener("blur", this._onInputBlurRef);
             this._todayLabelBtn.removeEventListener("click", this._selectTodayRef);
             this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
             this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
@@ -115,32 +120,12 @@ export default class Datepicker {
         }
     }
 
-    handleKeypress(e) {
-        const key = e.which || e.keyCode;
-
-        switch(key) {
-            case 13:
-            this.open(e);
-            break;
-
-            case 27:
-            this.close();
-            break;
-
-            case 39:
-            this._renderNextMonth();
-            break;
-
-            case 37:
-            this._renderPrevMonth();
-            break;
-        }
-    }
-
     render(input) {
         if(input && input.nodeName.toLowerCase() === "input") {
             this._inputField = input;
             this._inputField.addEventListener("click", this._openRef);
+            this._inputField.addEventListener("focus", this._onInputFocusRef);
+            this._inputField.addEventListener("blur", this._onInputBlurRef);
             this._setYear();
             this._setMonth();
             this._setCurrentDay();
@@ -262,43 +247,55 @@ export default class Datepicker {
         this._calendarTable.innerHTML = "";
 
         for(let i = 1; i < stweekDay; i++) {
-            const calendarDay = document.createElement("button");
-            calendarDay.className = "calendar__date";
-            calendarDay.setAttribute("disabled", "");
-            calendarDay.innerHTML = "";
+            const calendarDay = document.createElement("div");
+            calendarDay.className = "date";
+            const calendarDayBtn = document.createElement("button");
+            calendarDayBtn.className = "date__btn date__btn_disabled";
+            calendarDayBtn.setAttribute("disabled", "");
+            calendarDayBtn.innerHTML = "";
             this._calendarTable.appendChild(calendarDay);
+            calendarDay.appendChild(calendarDayBtn);
         }
 
         for(let i = 1; i <= lastDay; i++) {
-            const calendarDay = document.createElement("button");
-            calendarDay.className = "calendar__date";
-            this._monthDates.push(calendarDay);
+            const calendarDay = document.createElement("div");
+            calendarDay.className = "date";
+
+            const calendarDayBtn = document.createElement("button");
+            calendarDayBtn.className = "date__btn";
+
+            this._monthDates.push(calendarDayBtn);
             const theDate = new Date(yearPar, monthPar, i);
 
             if(theDate < this._minDate || theDate > this._maxDate) {
-                calendarDay.setAttribute("disabled", "");
+                calendarDayBtn.setAttribute("disabled", "");
+                calendarDayBtn.className += " date__btn_disabled";
             }
 
             if(yearPar === this._year && monthPar === this._month && i === this._currentDay) {
-                calendarDay.className += " calendar__date_today";
+                calendarDayBtn.className += " date__btn_today";
             }
 
             if(+theDate === +this._selectedDate) {
-                calendarDay.className += " calendar__date_selected";
+                calendarDayBtn.className += " date__btn_selected";
             }
 
-            calendarDay.innerHTML = `${i}`;
+            calendarDayBtn.innerHTML = `${i}`;
             this._calendarTable.appendChild(calendarDay);
+            calendarDay.appendChild(calendarDayBtn);
         }
         this._selectDate();
 
         if (ltweekday === 0) return;
         for(let i = ltweekday; i < 7; i++) {
-            const calendarDay = document.createElement("button");
-            calendarDay.className = "calendar__date";
-            calendarDay.setAttribute("disabled", "");
-            calendarDay.innerHTML = "";
+            const calendarDay = document.createElement("div");
+            calendarDay.className = "date";
+            const calendarDayBtn = document.createElement("button");
+            calendarDayBtn.className = "date__btn date__btn_disabled";
+            calendarDayBtn.setAttribute("disabled", "");
+            calendarDayBtn.innerHTML = "";
             this._calendarTable.appendChild(calendarDay);
+            calendarDay.appendChild(calendarDayBtn);
         }
     }
 
@@ -338,5 +335,41 @@ export default class Datepicker {
 
     _stopBubbling(e) {
         e.stopPropagation();
+    }
+
+    _onInputFocus() {
+        if(!this._isFocused) {
+            this._isFocused = true
+        }
+    }
+
+    _onInputBlur() {
+        if(this._isFocused) {
+            this._isFocused = false
+        }
+    }
+
+    _handleKeypress(e) {
+        const key = e.which || e.keyCode;
+
+        switch(key) {
+            case 13:
+            if(this._isFocused) {
+                this.open(e);
+            }
+            break;
+
+            case 27:
+            this.close();
+            break;
+
+            case 39:
+            this._renderNextMonth();
+            break;
+
+            case 37:
+            this._renderPrevMonth();
+            break;
+        }
     }
 }

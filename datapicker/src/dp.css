@@ -101,7 +101,9 @@
     text-align: center;
 }
 
-.calendar__date {
+.date__btn{
+    width: 100%;
+    height: 100%;
     padding: 10px;
     border: 2px solid transparent;
     text-align: center;
@@ -110,29 +112,24 @@
     transition: 0.4s;
 }
 
-.calendar__date:hover {
+.date__btn:hover {
     background: rgba(0,128,128,0.5);
 }
 
-.calendar__date:active{
-    background: rgba(0,128,128,0.7);
-    transition: none;
-}
-
-.calendar__date:disabled {
+.date__btn_disabled {
     background: rgba(0,128,128,0.1);
     opacity: 0.3;
     pointer-events: none;
     cursor: default;
 }
 
-.calendar__date_today {
-    background:rgba(0,128,128,1) !important;
+.date__btn_today {
+    background:rgba(0,128,128,1);
     border-radius: 3px;
 }
 
-.calendar__date_selected {
-    background: rgba(0,128,128,0.7) !important;
+.date__btn_selected {
+    background: rgba(0,128,128,0.7);
     border: 2px solid teal;
     border-radius: 3px;
 }
