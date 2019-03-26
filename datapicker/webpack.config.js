@@ -2,9 +2,9 @@
 
 module.exports = {
     mode: 'development',
-    entry: './datapicker/src/dp.js',
+    entry: './src/dp.js',
     output: {
-      path: __dirname + "/datapicker/dist",
+      path: __dirname + "/dist",
       filename: 'bundle.js',
       library: 'myApp'
     },

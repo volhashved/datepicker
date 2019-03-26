@@ -68,6 +68,7 @@ export default class Datepicker {
         this._isFocused = false;
         this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
         this._monthDates = [];
+        this._setId();
         this._openRef = this.open.bind(this);
         this._closeRef = this.close.bind(this);
         this._onInputFocusRef = this._onInputFocus.bind(this);
@@ -77,11 +78,10 @@ export default class Datepicker {
         this._nextMonthRef = this._renderNextMonth.bind(this);
         this._prevMonthRef = this._renderPrevMonth.bind(this);
         this._stopBubblingRef = this._stopBubbling.bind(this);
+        this._windowClickRef = this._windowClick.bind(this);
     }
 
-    open(e) {
-        e.stopPropagation();
-
+    open() {
         if(!this._selectedDate) {
             this._setMonth();
             this._renderCalendarDates(this._year, this._month);
@@ -99,10 +99,10 @@ export default class Datepicker {
     }
 
     close() {
-       if (this._isOpened) {
+        if(this._isOpened) {
             this._datePicker.classList.add('datepicker_hidden');
             this._isOpened = false;
-       }
+        }
     }
 
     destroy() {
@@ -114,7 +114,7 @@ export default class Datepicker {
             this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
             this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
             this._calendar.removeEventListener("click", this._stopBubbling);
-            window.removeEventListener("click", this._closeRef);
+            window.removeEventListener("click", this._windowClickRef);
             window.removeEventListener("keyup", this._handleKeypressRef);
             this._datePicker.parentNode.removeChild(this._datePicker);
         }
@@ -123,23 +123,28 @@ export default class Datepicker {
     render(input) {
         if(input && input.nodeName.toLowerCase() === "input") {
             this._inputField = input;
-            this._inputField.addEventListener("click", this._openRef);
-            this._inputField.addEventListener("focus", this._onInputFocusRef);
-            this._inputField.addEventListener("blur", this._onInputBlurRef);
             this._setYear();
             this._setMonth();
             this._setCurrentDay();
             this._renderCalendar();
+            this._inputField.setAttribute("id", `${this._id}`);
+            this._inputField.addEventListener("click", this._openRef);
+            this._inputField.addEventListener("focus", this._onInputFocusRef);
+            this._inputField.addEventListener("blur", this._onInputBlurRef);
             this._todayLabelBtn.addEventListener("click", this._selectTodayRef);
             this._nextMonthBtn.addEventListener("click", this._nextMonthRef);
             this._previousMonthBtn.addEventListener("click", this._prevMonthRef);
             this._calendar.addEventListener("click", this._stopBubbling);
-            window.addEventListener("click", this._closeRef);
+            window.addEventListener("click", this._windowClickRef);
             window.addEventListener("keyup", this._handleKeypressRef);
         }
         else {
             throw new InputError(`Element ${input.nodeName.toLowerCase()} is not an input`);
         }
+    }
+
+    _setId() {
+        this._id = Math.random().toString(36).substr(2, 9);
     }
 
     _setDateFormat(date) {
@@ -349,13 +354,27 @@ export default class Datepicker {
         }
     }
 
+    _windowClick(e) {
+        if(e.target.nodeName.toLowerCase() === "input" && e.which !== 27) {
+            if (this._isOpened && e.target.getAttribute("id") !== this._id) {
+               this.close();
+            }
+        }
+        else {
+            this.close();
+        }
+    }
+
     _handleKeypress(e) {
         const key = e.which || e.keyCode;
 
         switch(key) {
             case 13:
             if(this._isFocused) {
-                this.open(e);
+                this.open();
+            }
+            else {
+                this.close();
             }
             break;
 

@@ -133,3 +133,7 @@
     border: 2px solid teal;
     border-radius: 3px;
 }
+
+.btn-no-outline {
+    outline: none;
+}
