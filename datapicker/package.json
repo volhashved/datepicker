@@ -4,9 +4,11 @@
   "description": "<h1>Date picker application</h1>",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "pretest": "eslint --ignore-path .gitignore .",
-    "lint": "eslint src -c .eslintrc.json --ext js"
+    "build": "webpack --config example.config.js",
+    "eslint": "eslint",
+    "eslint:check": "eslint src/*.js",
+    "unit": "karma start karma.conf.js",
+    "test": "npm run unit"
   },
   "repository": {
     "type": "git",
@@ -20,12 +22,17 @@
   "homepage": "https://github.com/oleg-vasilyev/gte-datepicker#readme",
   "devDependencies": {
     "eslint": "^5.15.3",
-    "eslint-config-prettier": "^4.1.0",
-    "eslint-import-resolver-webpack": "^0.11.0",
+    "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-prettier": "^3.0.1",
-    "prettier": "^1.16.4",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
+  },
+  "dependencies": {
+    "jasmine-core": "^3.3.0",
+    "karma": "^4.0.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-coverage": "^1.1.2",
+    "karma-jasmine": "^2.0.1",
+    "karma-webpack": "^3.0.5"
   }
 }
