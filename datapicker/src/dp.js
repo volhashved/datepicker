@@ -97,7 +97,8 @@ export default class Datepicker {
   }
 
   render(input) {
-    if(input && input.nodeName.toLowerCase() === "input") {
+    if(!input) throw new InputError("There is no valid input");
+    if(input.nodeName && input.nodeName.toLowerCase() === "input") {
       this._inputField = input;
       this._setYear();
       this._setMonth();
@@ -115,7 +116,7 @@ export default class Datepicker {
       window.addEventListener("keyup", this._handleKeypressRef);
     }
     else {
-      throw new InputError(`Element ${input.nodeName.toLowerCase()} is not an input`);
+      throw new InputError(`Element ${input} is not an input`);
     }
   }
 

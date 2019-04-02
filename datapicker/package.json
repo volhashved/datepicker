@@ -4,7 +4,7 @@
   "description": "<h1>Date picker application</h1>",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --config example.config.js",
+    "build": "webpack --config webpack.config.js",
     "eslint": "eslint",
     "eslint:check": "eslint src/*.js",
     "unit": "karma start karma.conf.js",
