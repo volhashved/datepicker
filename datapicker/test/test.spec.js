@@ -1,27 +1,32 @@
 import Datepicker from '../src/dp.js';
 
 describe("Test Datepicker", function() { 
-  const dp = new Datepicker();
-  
+  let dp;
+
+  beforeEach(function() {
+    dp = new Datepicker();
+  });
+
   it("should exist", function() {
-    expect(typeof dp).toBe('object');
-    expect(dp instanceof Datepicker).toBe(true);
+    expect(dp).toBeDefined();
   });
 
-  it("should have min date", function() {
-    const dp1 = new Datepicker();
-    expect(dp1.minDate).toEqual(dp1._minDate);
-
-    const dp2 = new Datepicker(new Date(2019, 1, 5), new Date(2020, 3, 20));
-    expect(dp2.minDate).toEqual(new Date(2019, 1, 5));
+  it("should have a default min date", function() {
+    expect(dp.minDate).toEqual(dp._minDate);
   });
 
-  it("should have max date", function() {
-    const dp1 = new Datepicker();
-    expect(dp1.maxDate).toEqual(dp1._maxDate);
+  it("should have a defined min date", function() {
+    const dp = new Datepicker(new Date(2019, 1, 5), new Date(2020, 3, 20));
+    expect(dp.minDate).toEqual(new Date(2019, 1, 5));
+  });
 
-    const dp2 = new Datepicker(new Date(2019, 1, 5), new Date(2020, 3, 20));
-    expect(dp2.maxDate).toEqual(new Date(2020, 3, 20));
+  it("should have a default max date", function() {
+    expect(dp.maxDate).toEqual(dp._maxDate);
+  });
+
+  it("should have a defined max date", function() {
+    const dp = new Datepicker(new Date(2019, 1, 5), new Date(2020, 3, 20));
+    expect(dp.maxDate).toEqual(new Date(2020, 3, 20));
   });
 
   it("should set a correct date format", function() {
@@ -30,17 +35,31 @@ describe("Test Datepicker", function() {
   });
 
   it("should render calendar", function() {
-    expect(function(){ dp.render(); }).toThrow(new Error("There is no valid input"));
-    expect(function(){ dp.render("string"); }).toThrow(new Error("Element string is not an input"));
-    expect(function(){ dp.render(10); }).toThrow(new Error("Element 10 is not an input"));
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    dp.render(input);
+    expect(dp._isRendered).toBeTruthy();
   });
 
-  it("should close", function() {
-    const dp = new Datepicker();
+  it("should show error if an argument is not input", function() {
+    expect(function(){ dp.render(); }).toThrowError();
+    expect(function(){ dp.render("string"); }).toThrowError();
+    expect(function(){ dp.render(10); }).toThrowError();
+  });
+
+  it("should close calendar", function() {
     dp.close();
 
     const dpClosed = dp._isOpened == false ? true : false;
-    // const dpClosed = dp._datePicker.classList.contains('datepicker_hidden') ? true : false;
-    expect(dpClosed).toBe(true);
+    expect(dpClosed).toBeTruthy();
+  });
+
+  it("should open calendar", function() {
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    dp.render(input);
+    dp.open();
+
+    expect(dp._isOpened).toBe(true);
   });
 });

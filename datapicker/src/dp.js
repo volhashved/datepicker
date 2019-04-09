@@ -61,19 +61,21 @@ export default class Datepicker {
   }
 
   open() {
-    if(!this._selectedDate) {
-      this._setMonth();
-      this._renderCalendarDates(this._year, this._month);
-    }
-    else {
-      this._monthCounter = this._selectedDate.getMonth();
-      this._renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
-      this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
-    }
+    if(this._isRendered) {
+      if(!this._selectedDate) {
+        this._setMonth();
+        this._renderCalendarDates(this._year, this._month);
+      }
+      else {
+        this._monthCounter = this._selectedDate.getMonth();
+        this._renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
+        this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
+      }
 
-    if(!this._isOpened) {
-      this._datePicker.classList.remove('datepicker_hidden');
-      this._isOpened = true;
+      if(!this._isOpened) {
+        this._datePicker.classList.remove('datepicker_hidden');
+        this._isOpened = true;
+      }
     }
   }
 
@@ -96,6 +98,9 @@ export default class Datepicker {
       window.removeEventListener("click", this._windowClickRef);
       window.removeEventListener("keyup", this._handleKeypressRef);
       this._datePicker.parentNode.removeChild(this._datePicker);
+      this._monthDates.map(item => {
+        item.removeEventListener("click", this._setSelectedDateRef);
+      });
     }
   }
 
@@ -103,6 +108,7 @@ export default class Datepicker {
     if(!input) throw new InputError("There is no valid input");
     if(input.nodeName && input.nodeName.toLowerCase() === "input") {
       this._inputField = input;
+      this._isRendered = true;
       this._setYear();
       this._setMonth();
       this._setCurrentDay();
@@ -130,6 +136,7 @@ export default class Datepicker {
     this._currentDay = null;
     this._selectedDate = null;
     this._inputField = null;
+    this._isRendered = false;
     this._isOpened = false;
     this._isFocused = false;
     this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
@@ -152,6 +159,7 @@ export default class Datepicker {
     this._onInputBlurRef = this._onInputBlur.bind(this);
     this._handleKeypressRef = this._handleKeypress.bind(this);
     this._selectTodayRef = this._selectToday.bind(this);
+    this._setSelectedDateRef = this._setSelectedDate.bind(this);
     this._nextMonthRef = this._renderNextMonth.bind(this);
     this._prevMonthRef = this._renderPrevMonth.bind(this);
     this._stopBubblingRef = this._stopBubbling.bind(this);
@@ -181,12 +189,14 @@ export default class Datepicker {
 
   _selectDate() {
     this._monthDates.map(item => {
-      item.addEventListener("click", (e) => {
-        this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
-        this._inputField.value = `${this._setDateFormat(this._selectedDate)}`;
-        this.close();
-      });
+      item.addEventListener("click", this._setSelectedDateRef);
     });
+  }
+
+  _setSelectedDate(e) {
+    this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
+    this._inputField.value = `${this._setDateFormat(this._selectedDate)}`;
+    this.close();
   }
 
   _selectToday(e) {
@@ -238,7 +248,7 @@ export default class Datepicker {
         if(this._isFocused) {
           this.open();
         }
-        else {
+        else if(!this._isFocused && e.target.nodeName.toLowerCase() === 'input' && e.target.getAttribute("id") !== this._id) {
           this.close();
         }
         break;
