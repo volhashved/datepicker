@@ -64,16 +64,16 @@ export default class Datepicker {
     if(this._isRendered) {
       if(!this._selectedDate) {
         this._setMonth();
-        this._renderCalendarDates(this._year, this._month);
+        this._manageRender.renderCalendarDates(this._year, this._month);
       }
       else {
         this._monthCounter = this._selectedDate.getMonth();
-        this._renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
+        this._manageRender.renderCalendarDates(this._selectedDate.getFullYear(), this._selectedDate.getMonth(), this._selectedDate.getDate());
         this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
       }
 
       if(!this._isOpened) {
-        this._datePicker.classList.remove('datepicker_hidden');
+        this._manageRender._datePicker.classList.remove('datepicker_hidden');
         this._isOpened = true;
       }
     }
@@ -81,7 +81,7 @@ export default class Datepicker {
 
   close() {
     if(this._isOpened) {
-      this._datePicker.classList.add('datepicker_hidden');
+      this._manageRender._datePicker.classList.add('datepicker_hidden');
       this._isOpened = false;
     }
   }
@@ -91,16 +91,16 @@ export default class Datepicker {
       this._inputField.removeEventListener("click", this._openRef);
       this._inputField.removeEventListener("focus", this._onInputFocusRef);
       this._inputField.removeEventListener("blur", this._onInputBlurRef);
-      this._todayLabelBtn.removeEventListener("click", this._selectTodayRef);
-      this._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
-      this._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
-      this._calendar.removeEventListener("click", this._stopBubbling);
+      this._manageRender._todayLabelBtn.removeEventListener("click", this._selectTodayRef);
+      this._manageRender._nextMonthBtn.removeEventListener("click", this._nextMonthRef);
+      this._manageRender._previousMonthBtn.removeEventListener("click", this._prevMonthRef);
+      this._manageRender._calendar.removeEventListener("click", this._stopBubbling);
       window.removeEventListener("click", this._windowClickRef);
       window.removeEventListener("keyup", this._handleKeypressRef);
-      this._datePicker.parentNode.removeChild(this._datePicker);
-      this._monthDates.map(item => {
-        item.removeEventListener("click", this._setSelectedDateRef);
-      });
+      this._manageRender._datePicker.parentNode.removeChild(this._datePicker);
+      // this._monthDates.map(item => {
+      //   item.removeEventListener("click", this._setSelectedDateRef);
+      // });
     }
   }
 
@@ -108,19 +108,20 @@ export default class Datepicker {
     if(!input) throw new InputError("There is no valid input");
     if(input.nodeName && input.nodeName.toLowerCase() === "input") {
       this._inputField = input;
-      this._isRendered = true;
+      this._isRendered = true;      
       this._setYear();
       this._setMonth();
       this._setCurrentDay();
-      this._renderCalendar();
+      this._manageRender = new Render(input, this._selectDate);
+      this._manageRender.renderCalendar();
       this._inputField.setAttribute("id", `${this._id}`);
       this._inputField.addEventListener("click", this._openRef);
       this._inputField.addEventListener("focus", this._onInputFocusRef);
       this._inputField.addEventListener("blur", this._onInputBlurRef);
-      this._todayLabelBtn.addEventListener("click", this._selectTodayRef);
-      this._nextMonthBtn.addEventListener("click", this._nextMonthRef);
-      this._previousMonthBtn.addEventListener("click", this._prevMonthRef);
-      this._calendar.addEventListener("click", this._stopBubbling);
+      this._manageRender._todayLabelBtn.addEventListener("click", this._selectTodayRef);
+      this._manageRender._nextMonthBtn.addEventListener("click", this._nextMonthRef);
+      this._manageRender._previousMonthBtn.addEventListener("click", this._prevMonthRef);
+      this._manageRender._calendar.addEventListener("click", this._stopBubbling);
       window.addEventListener("click", this._windowClickRef);
       window.addEventListener("keyup", this._handleKeypressRef);
     }
@@ -139,20 +140,13 @@ export default class Datepicker {
     this._isRendered = false;
     this._isOpened = false;
     this._isFocused = false;
-    this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-    this._monthDates = [];
+    // this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+    // this._monthDates = [];
     this._setId();
     this._bindMethods();
   }
 
-  _bindMethods(){
-    this._renderCalendar = this._manageRender._renderCalendar.bind(this);
-    this._renderLabel = this._manageRender._renderLabel.bind(this);
-    this._renderHeader = this._manageRender._renderHeader.bind(this);
-    this._renderCalendarTable = this._manageRender._renderCalendarTable.bind(this);
-    this._renderCalendarDates = this._manageRender._renderCalendarDates.bind(this);
-    this._renderNextMonth = this._manageRender._renderNextMonth.bind(this);
-    this._renderPrevMonth = this._manageRender._renderPrevMonth.bind(this);
+  _bindMethods(){   
     this._openRef = this.open.bind(this);
     this._closeRef = this.close.bind(this);
     this._onInputFocusRef = this._onInputFocus.bind(this);
@@ -187,15 +181,15 @@ export default class Datepicker {
     this._currentDay = this._now.getDate();
   }
 
-  _selectDate() {
+  _selectDate(monthDates) {    
     this._monthDates.map(item => {
       item.addEventListener("click", this._setSelectedDateRef);
     });
   }
 
-  _setSelectedDate(e) {
+  _setSelectedDate(e) {    
     this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
-    this._inputField.value = `${this._setDateFormat(this._selectedDate)}`;
+    this._manageRender._inputField.value = `${this._setDateFormat(this._selectedDate)}`;
     this.close();
   }
 
@@ -204,13 +198,23 @@ export default class Datepicker {
     this._setMonth();
 
     if (this._now < this._minDate || this._now > this._maxDate) {
-      this._renderCalendarDates(this._year, this._month);
+      this._manageRender.renderCalendarDates(this._year, this._month);
       return;
     }
 
     this._selectedDate = new Date(this._year, this._month, this._currentDay);
-    this._renderCalendarDates(this._year, this._month);
+    this._manageRender.renderCalendarDates(this._year, this._month);
     this._inputField.value = `${this._currentDay}/${this._month + 1}/${this._year}`;
+  }
+
+  _renderNextMonth() {
+    this._monthCounter = this._monthCounter + 1;
+    this._manageRender.renderCalendarDates(this._year, this._monthCounter);
+  }
+
+  _renderPrevMonth() {
+    this._monthCounter = this._monthCounter - 1;
+    this._manageRender.renderCalendarDates(this._year, this._monthCounter);
   }
 
   _stopBubbling(e) {
