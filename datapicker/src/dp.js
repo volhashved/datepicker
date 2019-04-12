@@ -56,8 +56,8 @@ export default class Datepicker {
     this._maxDate = new Date(new Date().getFullYear(), 12, 0);
     this.minDate = minDate || this._minDate;
     this.maxDate = maxDate || this._maxDate;
-    this._manageRender = new Render();
     this._init();
+    this._manageRender = new Render(this.minDate, this.maxDate);
   }
 
   open() {
@@ -73,7 +73,7 @@ export default class Datepicker {
       }
 
       if(!this._isOpened) {
-        this._manageRender._datePicker.classList.remove('datepicker_hidden');
+        this._manageRender.openCalendar();
         this._isOpened = true;
       }
     }
@@ -81,7 +81,7 @@ export default class Datepicker {
 
   close() {
     if(this._isOpened) {
-      this._manageRender._datePicker.classList.add('datepicker_hidden');
+      this._manageRender.closeCalendar();
       this._isOpened = false;
     }
   }
@@ -98,9 +98,6 @@ export default class Datepicker {
       window.removeEventListener("click", this._windowClickRef);
       window.removeEventListener("keyup", this._handleKeypressRef);
       this._manageRender._datePicker.parentNode.removeChild(this._datePicker);
-      // this._monthDates.map(item => {
-      //   item.removeEventListener("click", this._setSelectedDateRef);
-      // });
     }
   }
 
@@ -108,12 +105,13 @@ export default class Datepicker {
     if(!input) throw new InputError("There is no valid input");
     if(input.nodeName && input.nodeName.toLowerCase() === "input") {
       this._inputField = input;
-      this._isRendered = true;      
+      this._isRendered = true;
       this._setYear();
       this._setMonth();
       this._setCurrentDay();
-      this._manageRender = new Render(input, this._selectDate);
-      this._manageRender.renderCalendar();
+      this._manageRender.render(input, this._selectDate.bind(this));
+      this._manageRender.getMonthCount(this._monthCounter);
+      this._manageRender.getSelectedDate(this._selectedDate);
       this._inputField.setAttribute("id", `${this._id}`);
       this._inputField.addEventListener("click", this._openRef);
       this._inputField.addEventListener("focus", this._onInputFocusRef);
@@ -140,20 +138,17 @@ export default class Datepicker {
     this._isRendered = false;
     this._isOpened = false;
     this._isFocused = false;
-    // this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-    // this._monthDates = [];
     this._setId();
     this._bindMethods();
   }
 
-  _bindMethods(){   
+  _bindMethods(){
     this._openRef = this.open.bind(this);
     this._closeRef = this.close.bind(this);
     this._onInputFocusRef = this._onInputFocus.bind(this);
     this._onInputBlurRef = this._onInputBlur.bind(this);
     this._handleKeypressRef = this._handleKeypress.bind(this);
     this._selectTodayRef = this._selectToday.bind(this);
-    this._setSelectedDateRef = this._setSelectedDate.bind(this);
     this._nextMonthRef = this._renderNextMonth.bind(this);
     this._prevMonthRef = this._renderPrevMonth.bind(this);
     this._stopBubblingRef = this._stopBubbling.bind(this);
@@ -162,10 +157,6 @@ export default class Datepicker {
 
   _setId() {
     this._id = Math.random().toString(36).substr(2, 9);
-  }
-
-  _setDateFormat(date) {
-    return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
   }
 
   _setYear() {
@@ -181,16 +172,15 @@ export default class Datepicker {
     this._currentDay = this._now.getDate();
   }
 
-  _selectDate(monthDates) {    
-    this._monthDates.map(item => {
-      item.addEventListener("click", this._setSelectedDateRef);
-    });
+  _selectDate(e) {
+    this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
+    this._inputField.value = `${this._setDateFormat(this._selectedDate)}`;
+    this._manageRender.getSelectedDate(this._selectedDate);
+    this.close();
   }
 
-  _setSelectedDate(e) {    
-    this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
-    this._manageRender._inputField.value = `${this._setDateFormat(this._selectedDate)}`;
-    this.close();
+  _setDateFormat(date) {
+    return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
   }
 
   _selectToday(e) {
@@ -209,11 +199,13 @@ export default class Datepicker {
 
   _renderNextMonth() {
     this._monthCounter = this._monthCounter + 1;
+    this._manageRender.getMonthCount(this._monthCounter);
     this._manageRender.renderCalendarDates(this._year, this._monthCounter);
   }
 
   _renderPrevMonth() {
     this._monthCounter = this._monthCounter - 1;
+    this._manageRender.getMonthCount(this._monthCounter);
     this._manageRender.renderCalendarDates(this._year, this._monthCounter);
   }
 
