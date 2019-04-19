@@ -1,35 +1,64 @@
 export default class Render {
-  constructor (minDate, maxDate) {
-    this._minDate = minDate;
-    this._maxDate = maxDate;
+  constructor () {
     this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
     this._monthDates = [];
+    this._isRendered = false;
     this._now = new Date();
     this._year = this._now.getFullYear();
     this._month = this._now.getMonth();
     this._currentDay = this._now.getDate();
   }
 
-  render(input, select) {
+  create(input, formator, {minDate, maxDate, selectedDate, monthCounter, isOpened}) {
     this._inputField = input;
-    this._select = select;
+    this._formator = formator;
+    this._minDate = minDate;
+    this._maxDate = maxDate;
+    this._selectedDate = selectedDate;
+    this._monthCounter = monthCounter;
+    this._isOpened = isOpened;
     this._renderCalendar();
+
+    return {
+      todayBtn: this._todayLabelBtn,
+      nextMonthBtn: this._nextMonthBtn,
+      prevMonthBtn: this._previousMonthBtn,
+      dayBtns: this._monthDates
+    }
   }
 
-  getMonthCount(counter) {
-    this._monthCounter = counter;
+  update(isOpened, year, month) {
+    if(isOpened) {
+      this._monthCounter = month;
+      this._renderCalendarDates(year, month);
+      this._openCalendar();
+    }
+    else {
+      this._monthCounter = month;
+      this._closeCalendar();
+    }
   }
+
+  isRendered() {
+    this._isRendered = true;
+  }
+
+  destroy() {}
 
   getSelectedDate(date) {
     this._selectedDate = date;
   }
 
-  openCalendar() {
+  _openCalendar() {
     this._datePicker.classList.remove('datepicker_hidden');
   }
 
-  closeCalendar() {
+  _closeCalendar() {
     this._datePicker.classList.add('datepicker_hidden');
+  }
+
+  _stopBubbling(e) {
+    e.stopPropagation();
   }
 
   _renderCalendar() {
@@ -41,9 +70,12 @@ export default class Render {
     this._calendar.className = "calendar";
     this._datePicker.appendChild(this._calendar);
 
+    this._calendar.addEventListener('click', this._stopBubbling);
+
     this._renderLabel();
     this._renderHeader();
     this._renderCalendarTable();
+    this._renderCalendarDates(this._year, this._month);
   }
 
   _renderLabel() {
@@ -102,7 +134,7 @@ export default class Render {
     this._calendar.appendChild(this._calendarTable);
   }
 
-  renderCalendarDates(yearPar, monthPar) {
+  _renderCalendarDates(yearPar, monthPar) {
     this._activeMonth.innerHTML = `${(new Date(yearPar, monthPar)).toLocaleString("en", {
       year: 'numeric',
       month: 'long'
@@ -158,9 +190,9 @@ export default class Render {
       calendarDay.appendChild(calendarDayBtn);
     }
 
-    this._monthDates.map(item => {
-      item.addEventListener("click", (e) => this._select(e));
-    });
+    // this._monthDates.map(item => {
+    //   item.addEventListener("click", (e) => this._select(e));
+    // });
 
     if (ltweekday === 0) return;
     for(let i = ltweekday; i < 7; i++) {

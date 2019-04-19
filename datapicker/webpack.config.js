@@ -1,6 +1,6 @@
 module.exports = {
   mode: 'development',
-  entry: './src/dp.js',
+  entry: './src/dp-factory.js',
   output: {
     path: __dirname + "/dist",
     filename: 'bundle.js',
