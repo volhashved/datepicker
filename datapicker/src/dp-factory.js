@@ -1,17 +1,15 @@
 import Datepicker from './dp.js';
 import Render from './dp-render.js';
-import Formator from './dp-formator';
+import Formatter from './dp-formator';
 
 export default class DPFactory {
   constructor() {}
 
-  getDatepicker(minDate, maxDate) {
-    this.minDate = minDate;
-    this.maxDate = maxDate;
-    this.formator = new Formator();
-    this.render = new Render();
-    this.dp = new Datepicker(minDate, maxDate, this.render, this.formator);
+  static getDatepicker(minDate, maxDate) {
+    const formatter = new Formatter();
+    const render = new Render();
+    const dp = new Datepicker(minDate, maxDate, render, formatter);
 
-    return this.dp;
+    return dp;
   }
 }

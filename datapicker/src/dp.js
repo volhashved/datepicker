@@ -1,5 +1,6 @@
 import { DateFormatError, DateValueError, InputError } from './dp-errors.js';
-import DPState from './dp-state.js';
+import DPInitState from './dp-initstate.js';
+import DPUpdateState from './dp-updstate.js';
 
 export default class Datepicker {
   get minDate() {
@@ -9,7 +10,7 @@ export default class Datepicker {
   set minDate(minVal) {
     if (minVal instanceof Date) {
       if(minVal > this._maxDate) {
-        throw new DateValueError(`Min date  ${this._formator.setDateFormat(minVal)} can not be later than max date ${this._formator.setDateFormat(this._maxDate)}`);
+        throw new DateValueError(`Min date ${this._formatter.format(minVal)} can not be later than max date ${this._formatter.format(this._maxDate)}`);
       }
       this._minDate = minVal;
     }
@@ -25,7 +26,7 @@ export default class Datepicker {
   set maxDate(maxVal) {
     if (maxVal instanceof Date) {
       if(maxVal < this._minDate) {
-        throw new DateValueError(`Min date ${this._formator.setDateFormat(this._minDate)} can not be later than max date ${this._formator.setDateFormat(maxVal)}`);
+        throw new DateValueError(`Min date ${this._formatter.format(this._minDate)} can not be later than max date ${this._formatter.format(maxVal)}`);
       }
       this._maxDate = maxVal;
     }
@@ -41,7 +42,7 @@ export default class Datepicker {
   set selectedDate(newDate) {
     if (newDate instanceof Date) {
       if(newDate < this._minDate || newDate > this._maxDate) {
-        throw new DateValueError(`Selected date ${this._formator.setDateFormat(newDate)} should be between min ${this._formator.setDateFormat(this._minDate)} and max ${this._formator.setDateFormat(this._maxDate)} dates`);
+        throw new DateValueError(`Selected date ${this._formatter.format(newDate)} should be between min ${this._formatter.format(this._minDate)} and max ${this._formatter.format(this._maxDate)} dates`);
       }
       this._selectedDate = newDate;
     }
@@ -50,8 +51,8 @@ export default class Datepicker {
     }
   }
 
-  constructor (minDate, maxDate, render, formator) {
-    this._formator = formator;
+  constructor (minDate, maxDate, render, formatter) {
+    this._formatter = formatter;
     this._minDate = new Date(new Date().getFullYear(), 0, 1);
     this._maxDate = new Date(new Date().getFullYear(), 12, 0);
     this.minDate = minDate || this._minDate;
@@ -65,16 +66,16 @@ export default class Datepicker {
       this._isOpened = true;
       if(!this._selectedDate) {
         this._setMonth();
-        this._render.update(this._isOpened, this._year, this._month);
+        const dpUpdateState = new DPUpdateState(this._isOpened, this._now, this._selectedDate);
+        this._render.update(dpUpdateState);
       }
       else {
         this._monthCounter = this._selectedDate.getMonth();
-        this._render.update(this._isOpened, this._selectedDate.getFullYear(), this._selectedDate.getMonth());
+        const date = new Date(this._selectedDate.getFullYear(), this._selectedDate.getMonth());
+        const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
+        this._render.update(dpUpdateState);
         this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
       }
-      // this.calendar.dayBtns.map(item => {
-      //   item.addEventListener("click", (e) => this._selectDate(e));
-      // });
     }
   }
 
@@ -88,9 +89,9 @@ export default class Datepicker {
       this._inputField.removeEventListener('click', this._openRef);
       this._inputField.removeEventListener('focus', this._onInputFocusRef);
       this._inputField.removeEventListener('blur', this._onInputBlurRef);
-      this.calendar.todayBtn.removeEventListener('click', this._selectTodayRef);
-      this.calendar.nextMonthBtn.removeEventListener('click', this._nextMonthRef);
-      this.calendar.prevMonthBtn.removeEventListener('click', this._prevMonthRef);
+      this.calendar.todayRef.removeEventListener('click', this._selectTodayRef);
+      this.calendar.nextMonthRef.removeEventListener('click', this._nextMonthRef);
+      this.calendar.prevMonthRef.removeEventListener('click', this._prevMonthRef);
       window.removeEventListener('click', this._windowClickRef);
       window.removeEventListener('keyup', this._handleKeypressRef);
       this._render._datePicker.parentNode.removeChild(this._datePicker);
@@ -103,17 +104,17 @@ export default class Datepicker {
       this._inputField = input;
       this._render.isRendered = true;
       this._setMonth();
-      const initState = new DPState(this.minDate, this.maxDate, this._selectedDate, this._monthCounter, this._isOpened);
-      this.calendar = this._render.create(input, this._formator, initState);
+      const dpInitState = new DPInitState(input, this._formatter, this.minDate, this.maxDate);
+      this.calendar = this._render.create(dpInitState);
+
       this._inputField.setAttribute('id', `${this._id}`);
       this._inputField.addEventListener('click', this._openRef);
       this._inputField.addEventListener('focus', this._onInputFocusRef);
       this._inputField.addEventListener('blur', this._onInputBlurRef);
-      this.calendar.todayBtn.addEventListener('click', this._selectTodayRef);
-      this.calendar.nextMonthBtn.addEventListener('click', this._nextMonthRef);
-      this.calendar.prevMonthBtn.addEventListener('click', this._prevMonthRef);
-      console.log(this.calendar.dayBtns);
-      this.calendar.dayBtns.map(item => {
+      this.calendar.todayRef.addEventListener('click', this._selectTodayRef);
+      this.calendar.nextMonthRef.addEventListener('click', this._nextMonthRef);
+      this.calendar.prevMonthRef.addEventListener('click', this._prevMonthRef);
+      this.calendar.daysRef.map(item => {
           item.addEventListener("click", (e) => this._selectDate(e));
         });
       window.addEventListener('click', this._windowClickRef);
@@ -159,8 +160,7 @@ export default class Datepicker {
 
   _selectDate(e) {
     this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
-    this._inputField.value = `${this._formator.setDateFormat(this._selectedDate)}`;
-    this._render.getSelectedDate(this._selectedDate);
+    this._inputField.value = `${this._formatter.format(this._selectedDate)}`;
     this.close();
   }
 
@@ -169,23 +169,27 @@ export default class Datepicker {
     this._setMonth();
 
     if (this._now < this._minDate || this._now > this._maxDate) {
-      this._render.update(this._isOpened, this._year, this._month);
+      const dpUpdateState = new DPUpdateState(this._isOpened, this._now, this._selectedDate);
+      this._render.update(dpUpdateState);
       return;
     }
 
-    this._selectedDate = new Date(this._year, this._month, this._currentDay);
-    this._render.update(this._isOpened, this._year, this._month);
-    this._inputField.value = `${this._currentDay}/${this._month + 1}/${this._year}`;
+    this._selectedDate = this._now;
+    const dpUpdateState = new DPUpdateState(this._isOpened, this._now, this._selectedDate);
+    this._render.update(dpUpdateState);
+    this._inputField.value = this._formatter.format(this._now);
   }
 
   _renderNextMonth() {
     this._monthCounter = this._monthCounter + 1;
-    this._render.update(this._isOpened, this._year, this._monthCounter);
+    const dpUpdateState = new DPUpdateState(this._isOpened, new Date(this._year, this._monthCounter), this._selectedDate);
+    this._render.update(dpUpdateState);
   }
 
   _renderPrevMonth() {
     this._monthCounter = this._monthCounter - 1;
-    this._render.update(this._isOpened, this._year, this._monthCounter);
+    const dpUpdateState = new DPUpdateState(this._isOpened, new Date(this._year, this._monthCounter), this._selectedDate);
+    this._render.update(dpUpdateState);
   }
 
   _onInputFocus() {

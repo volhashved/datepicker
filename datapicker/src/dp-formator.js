@@ -1,7 +1,9 @@
-export default class Formator {
-  constructor() {}
+export default class Formatter {
+  constructor() {
+    this.weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+  }
 
-  setDateFormat(date) {
+  format(date) {
     return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`;
   }
 }

@@ -1,40 +1,41 @@
 export default class Render {
   constructor () {
-    this._weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
     this._monthDates = [];
     this._isRendered = false;
-    this._now = new Date();
-    this._year = this._now.getFullYear();
-    this._month = this._now.getMonth();
-    this._currentDay = this._now.getDate();
+    this._selectedDate = null;
   }
 
-  create(input, formator, {minDate, maxDate, selectedDate, monthCounter, isOpened}) {
+  set _now(now) {
+    this._year = now.getFullYear();
+    this._month = now.getMonth();
+    this._currentDay = now.getDate();
+  }
+
+  create({input, formatter, minDate, maxDate}) {
     this._inputField = input;
-    this._formator = formator;
+    this._formatter = formatter;
     this._minDate = minDate;
     this._maxDate = maxDate;
-    this._selectedDate = selectedDate;
-    this._monthCounter = monthCounter;
-    this._isOpened = isOpened;
+    this._stopBubblingRef = this._stopBubbling.bind(this);
     this._renderCalendar();
 
     return {
-      todayBtn: this._todayLabelBtn,
-      nextMonthBtn: this._nextMonthBtn,
-      prevMonthBtn: this._previousMonthBtn,
-      dayBtns: this._monthDates
+      todayRef: this._todayLabelBtn,
+      nextMonthRef: this._nextMonthBtn,
+      prevMonthRef: this._previousMonthBtn,
+      daysRef: this._monthDates
     }
   }
 
-  update(isOpened, year, month) {
+  update({isOpened, date, selectedDate}) {
     if(isOpened) {
-      this._monthCounter = month;
-      this._renderCalendarDates(year, month);
+      this._now = new Date();
+      this._selectedDate = selectedDate;
+      this._setLabelValue();
+      this._renderCalendarDates(date);
       this._openCalendar();
     }
     else {
-      this._monthCounter = month;
       this._closeCalendar();
     }
   }
@@ -43,10 +44,8 @@ export default class Render {
     this._isRendered = true;
   }
 
-  destroy() {}
-
-  getSelectedDate(date) {
-    this._selectedDate = date;
+  destroy() {
+    this._calendar.removeEventListener('click', this._stopBubblingRef);
   }
 
   _openCalendar() {
@@ -70,12 +69,12 @@ export default class Render {
     this._calendar.className = "calendar";
     this._datePicker.appendChild(this._calendar);
 
-    this._calendar.addEventListener('click', this._stopBubbling);
+    this._calendar.addEventListener('click', this._stopBubblingRef);
 
     this._renderLabel();
     this._renderHeader();
     this._renderCalendarTable();
-    this._renderCalendarDates(this._year, this._month);
+    this._renderCalendarCells();
   }
 
   _renderLabel() {
@@ -87,6 +86,9 @@ export default class Render {
     this._todayLabelBtn.className = "today__btn";
     this._todayLabelBtn.setAttribute("title", "Today");
     this._todayLabel.appendChild(this._todayLabelBtn);
+  }
+
+  _setLabelValue() {
     this._todayLabelBtn.innerHTML = `${this._currentDay}/${this._month+1}/${this._year}`;
   }
 
@@ -123,7 +125,7 @@ export default class Render {
     this._calendarDates.className = "calendar__days";
     this._calendar.appendChild(this._calendarDates);
 
-    this._weekDays.forEach((item) => {
+    this._formatter.weekDays.forEach((item) => {
       const wkDay = document.createElement("li");
       wkDay.textContent = item;
       this._calendarDates.appendChild(wkDay);
@@ -134,7 +136,24 @@ export default class Render {
     this._calendar.appendChild(this._calendarTable);
   }
 
-  _renderCalendarDates(yearPar, monthPar) {
+  _renderCalendarCells() {
+    for(let i = 0; i < 42; i++) {
+      const calendarDay = document.createElement("div");
+      calendarDay.className = "date";
+
+      const calendarDayBtn = document.createElement("button");
+      calendarDayBtn.className = "date__btn";
+
+      this._monthDates.push(calendarDayBtn);
+      this._calendarTable.appendChild(calendarDay);
+      calendarDay.appendChild(calendarDayBtn);
+    }
+  }
+
+  _renderCalendarDates(date) {
+    const yearPar = date.getFullYear();
+    const monthPar = date.getMonth();
+
     this._activeMonth.innerHTML = `${(new Date(yearPar, monthPar)).toLocaleString("en", {
       year: 'numeric',
       month: 'long'
@@ -149,61 +168,36 @@ export default class Render {
 
     const ltweekday = (new Date(yearPar, monthPar, lastDay)).getDay();
 
-    this._calendarTable.innerHTML = "";
+    for(var i = 0; i < this._monthDates.length; i++) {
+      this._monthDates[i].innerHTML = "";
+      this._monthDates[i].className = "date__btn date__btn_disabled";
+      this._monthDates[i].setAttribute("disabled", "");
+      this._monthDates[i].parentNode.className = "date";
 
-    for(let i = 1; i < stweekDay; i++) {
-      const calendarDay = document.createElement("div");
-      calendarDay.className = "date";
-      const calendarDayBtn = document.createElement("button");
-      calendarDayBtn.className = "date__btn date__btn_disabled";
-      calendarDayBtn.setAttribute("disabled", "");
-      calendarDayBtn.innerHTML = "";
-      this._calendarTable.appendChild(calendarDay);
-      calendarDay.appendChild(calendarDayBtn);
-    }
+      if(i >= stweekDay - 1 && i < lastDay+stweekDay - 1) {
+        this._monthDates[i].className = "date__btn";
+        this._monthDates[i].removeAttribute("disabled", "");
+        const theDate = new Date(yearPar, monthPar, i-stweekDay+2);
 
-    for(let i = 1; i <= lastDay; i++) {
-      const calendarDay = document.createElement("div");
-      calendarDay.className = "date";
+        if(theDate < this._minDate || theDate > this._maxDate) {
+          this._monthDates[i].setAttribute("disabled", "");
+          this._monthDates[i].className += " date__btn_disabled";
+        }
 
-      const calendarDayBtn = document.createElement("button");
-      calendarDayBtn.className = "date__btn";
+        if(yearPar === this._year && monthPar === this._month && i+1 === this._currentDay) {
+          this._monthDates[i].className += " date__btn_today";
+        }
 
-      this._monthDates.push(calendarDayBtn);
-      const theDate = new Date(yearPar, monthPar, i);
+        if(+theDate === +this._selectedDate) {
+          this._monthDates[i].className += " date__btn_selected";
+        }
 
-      if(theDate < this._minDate || theDate > this._maxDate) {
-        calendarDayBtn.setAttribute("disabled", "");
-        calendarDayBtn.className += " date__btn_disabled";
+        this._monthDates[i].innerHTML = `${i-stweekDay+2}`;
+        // if (ltweekday === 0) return;
       }
-
-      if(yearPar === this._year && monthPar === this._month && i === this._currentDay) {
-        calendarDayBtn.className += " date__btn_today";
+      else if(i >= lastDay + (stweekDay - 1) + (7 - ltweekday)) {
+        this._monthDates[i].parentNode.className = "datepicker_hidden";
       }
-
-      if(+theDate === +this._selectedDate) {
-        calendarDayBtn.className += " date__btn_selected";
-      }
-
-      calendarDayBtn.innerHTML = `${i}`;
-      this._calendarTable.appendChild(calendarDay);
-      calendarDay.appendChild(calendarDayBtn);
-    }
-
-    // this._monthDates.map(item => {
-    //   item.addEventListener("click", (e) => this._select(e));
-    // });
-
-    if (ltweekday === 0) return;
-    for(let i = ltweekday; i < 7; i++) {
-      const calendarDay = document.createElement("div");
-      calendarDay.className = "date";
-      const calendarDayBtn = document.createElement("button");
-      calendarDayBtn.className = "date__btn date__btn_disabled";
-      calendarDayBtn.setAttribute("disabled", "");
-      calendarDayBtn.innerHTML = "";
-      this._calendarTable.appendChild(calendarDay);
-      calendarDay.appendChild(calendarDayBtn);
     }
   }
 }
