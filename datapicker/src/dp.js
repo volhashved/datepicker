@@ -70,11 +70,11 @@ export default class Datepicker {
         this._render.update(dpUpdateState);
       }
       else {
-        this._monthCounter = this._selectedDate.getMonth();
-        const date = new Date(this._selectedDate.getFullYear(), this._selectedDate.getMonth());
+        this._month = this._selectedDate.getMonth();
+        const date = new Date(this._selectedDate.getFullYear(), this._month);
         const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
         this._render.update(dpUpdateState);
-        this._inputField.value = `${this._selectedDate.getDate()}/${this._selectedDate.getMonth()+1}/${this._selectedDate.getFullYear()}`;
+        this._inputField.value = `${this._formatter.format(this._selectedDate)}`;
       }
     }
   }
@@ -89,12 +89,13 @@ export default class Datepicker {
       this._inputField.removeEventListener('click', this._openRef);
       this._inputField.removeEventListener('focus', this._onInputFocusRef);
       this._inputField.removeEventListener('blur', this._onInputBlurRef);
-      this.calendar.todayRef.removeEventListener('click', this._selectTodayRef);
-      this.calendar.nextMonthRef.removeEventListener('click', this._nextMonthRef);
-      this.calendar.prevMonthRef.removeEventListener('click', this._prevMonthRef);
+      this._calendar.todayRef.removeEventListener('click', this._selectTodayRef);
+      this._calendar.nextMonthRef.removeEventListener('click', this._nextMonthRef);
+      this._calendar.prevMonthRef.removeEventListener('click', this._prevMonthRef);
+      this._calendar.daysRef.map(item => item.removeEventListener("click", this._selectDateRef));
       window.removeEventListener('click', this._windowClickRef);
       window.removeEventListener('keyup', this._handleKeypressRef);
-      this._render._datePicker.parentNode.removeChild(this._datePicker);
+      this._render.destroy();
     }
   }
 
@@ -105,18 +106,15 @@ export default class Datepicker {
       this._render.isRendered = true;
       this._setMonth();
       const dpInitState = new DPInitState(input, this._formatter, this.minDate, this.maxDate);
-      this.calendar = this._render.create(dpInitState);
-
+      this._calendar = this._render.create(dpInitState);
       this._inputField.setAttribute('id', `${this._id}`);
       this._inputField.addEventListener('click', this._openRef);
       this._inputField.addEventListener('focus', this._onInputFocusRef);
       this._inputField.addEventListener('blur', this._onInputBlurRef);
-      this.calendar.todayRef.addEventListener('click', this._selectTodayRef);
-      this.calendar.nextMonthRef.addEventListener('click', this._nextMonthRef);
-      this.calendar.prevMonthRef.addEventListener('click', this._prevMonthRef);
-      this.calendar.daysRef.map(item => {
-          item.addEventListener("click", (e) => this._selectDate(e));
-        });
+      this._calendar.todayRef.addEventListener('click', this._selectTodayRef);
+      this._calendar.nextMonthRef.addEventListener('click', this._nextMonthRef);
+      this._calendar.prevMonthRef.addEventListener('click', this._prevMonthRef);
+      this._calendar.daysRef.map(item => item.addEventListener("click", this._selectDateRef));
       window.addEventListener('click', this._windowClickRef);
       window.addEventListener('keyup', this._handleKeypressRef);
     }
@@ -127,8 +125,8 @@ export default class Datepicker {
 
   _init() {
     this._now = new Date();
-    this._year = this._now.getFullYear();
-    this._month = this._now.getMonth();
+    this._currentYear = this._now.getFullYear();
+    this._currentMonth = this._now.getMonth();
     this._currentDay = this._now.getDate();
     this._selectedDate = null;
     this._inputField = null;
@@ -145,6 +143,7 @@ export default class Datepicker {
     this._onInputBlurRef = this._onInputBlur.bind(this);
     this._handleKeypressRef = this._handleKeypress.bind(this);
     this._selectTodayRef = this._selectToday.bind(this);
+    this._selectDateRef = this._selectDate.bind(this);
     this._nextMonthRef = this._renderNextMonth.bind(this);
     this._prevMonthRef = this._renderPrevMonth.bind(this);
     this._windowClickRef = this._windowClick.bind(this);
@@ -155,11 +154,11 @@ export default class Datepicker {
   }
 
   _setMonth() {
-    this._monthCounter = this._month;
+    this._month = this._currentMonth;
   }
 
   _selectDate(e) {
-    this._selectedDate = new Date(this._year, this._monthCounter, e.target.textContent);
+    this._selectedDate = new Date(this._currentYear, this._month, e.target.textContent);
     this._inputField.value = `${this._formatter.format(this._selectedDate)}`;
     this.close();
   }
@@ -181,14 +180,16 @@ export default class Datepicker {
   }
 
   _renderNextMonth() {
-    this._monthCounter = this._monthCounter + 1;
-    const dpUpdateState = new DPUpdateState(this._isOpened, new Date(this._year, this._monthCounter), this._selectedDate);
+    this._month = this._month + 1;
+    const date = new Date(this._currentYear, this._month);
+    const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
     this._render.update(dpUpdateState);
   }
 
   _renderPrevMonth() {
-    this._monthCounter = this._monthCounter - 1;
-    const dpUpdateState = new DPUpdateState(this._isOpened, new Date(this._year, this._monthCounter), this._selectedDate);
+    this._month = this._month - 1;
+    const date = new Date(this._currentYear, this._month);
+    const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
     this._render.update(dpUpdateState);
   }
 

@@ -46,6 +46,7 @@ export default class Render {
 
   destroy() {
     this._calendar.removeEventListener('click', this._stopBubblingRef);
+    this._datePicker.parentNode.removeChild(this._datePicker);
   }
 
   _openCalendar() {
@@ -153,11 +154,7 @@ export default class Render {
   _renderCalendarDates(date) {
     const yearPar = date.getFullYear();
     const monthPar = date.getMonth();
-
-    this._activeMonth.innerHTML = `${(new Date(yearPar, monthPar)).toLocaleString("en", {
-      year: 'numeric',
-      month: 'long'
-    })}`;
+    this._activeMonth.innerHTML = this._formatter.formatActiveMonth(date, "en", "numeric", "long");
 
     const lastDay = (new Date(yearPar, monthPar + 1, 0)).getDate();
 
