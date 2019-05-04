@@ -1,7 +1,7 @@
 export default class DPUpdateState {
-  constructor(isOpened, date, selectedDate) {
+  constructor(isOpened, calendarDate, selectedDate) {
     this.isOpened = isOpened;
-    this.date = date;
+    this.calendarDate = calendarDate;
     this.selectedDate = selectedDate;
   }
 }

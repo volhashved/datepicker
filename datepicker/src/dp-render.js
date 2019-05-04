@@ -27,12 +27,12 @@ export default class Render {
     }
   }
 
-  update({isOpened, date, selectedDate}) {
+  update({isOpened, calendarDate, selectedDate}) {
     if(isOpened) {
       this._now = new Date();
       this._selectedDate = selectedDate;
       this._setLabelValue();
-      this._renderCalendarDates(date);
+      this._renderCalendarDates(calendarDate);
       this._openCalendar();
     }
     else {
@@ -90,7 +90,7 @@ export default class Render {
   }
 
   _setLabelValue() {
-    this._todayLabelBtn.innerHTML = `${this._currentDay}/${this._month+1}/${this._year}`;
+    this._todayLabelBtn.innerHTML = this._formatter.format(new Date());
   }
 
   _renderHeader() {
@@ -154,7 +154,7 @@ export default class Render {
   _renderCalendarDates(date) {
     const yearPar = date.getFullYear();
     const monthPar = date.getMonth();
-    this._activeMonth.innerHTML = this._formatter.formatActiveMonth(date, "en", "numeric", "long");
+    this._activeMonth.innerHTML = this._formatter.formatActiveMonth(date);
 
     const lastDay = (new Date(yearPar, monthPar + 1, 0)).getDate();
 
@@ -163,7 +163,7 @@ export default class Render {
       stweekDay = 7;
     }
 
-    const ltweekday = (new Date(yearPar, monthPar, lastDay)).getDay();
+    let ltweekday = (new Date(yearPar, monthPar, lastDay)).getDay();
 
     for(var i = 0; i < this._monthDates.length; i++) {
       this._monthDates[i].innerHTML = "";
@@ -181,7 +181,7 @@ export default class Render {
           this._monthDates[i].className += " date__btn_disabled";
         }
 
-        if(yearPar === this._year && monthPar === this._month && i+1 === this._currentDay) {
+        if(yearPar === this._year && monthPar === this._month && i-stweekDay+2 === this._currentDay) {
           this._monthDates[i].className += " date__btn_today";
         }
 
@@ -190,7 +190,10 @@ export default class Render {
         }
 
         this._monthDates[i].innerHTML = `${i-stweekDay+2}`;
-        // if (ltweekday === 0) return;
+
+        if (ltweekday === 0) {
+          ltweekday = 7;
+        }
       }
       else if(i >= lastDay + (stweekDay - 1) + (7 - ltweekday)) {
         this._monthDates[i].parentNode.className = "datepicker_hidden";

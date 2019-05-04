@@ -66,7 +66,7 @@ export default class Datepicker {
       this._isOpened = true;
       if(!this._selectedDate) {
         this._setMonth();
-        const dpUpdateState = new DPUpdateState(this._isOpened, this._now, this._selectedDate);
+        const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
         this._render.update(dpUpdateState);
       }
       else {
@@ -126,10 +126,6 @@ export default class Datepicker {
   }
 
   _init() {
-    this._now = new Date();
-    this._currentYear = this._now.getFullYear();
-    this._currentMonth = this._now.getMonth();
-    this._currentDay = this._now.getDate();
     this._selectedDate = null;
     this._inputField = null;
     this._isOpened = false;
@@ -156,41 +152,51 @@ export default class Datepicker {
   }
 
   _setMonth() {
-    this._month = this._currentMonth;
+    this._month = new Date().getMonth();
   }
 
   _selectDate(e) {
-    this._selectedDate = new Date(this._currentYear, this._month, e.target.textContent);
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    this._selectedDate = new Date(currentYear, this._month, e.target.textContent);
     this._inputField.value = `${this._formatter.format(this._selectedDate)}`;
-    this.close();
+    const dpUpdateState = new DPUpdateState(this._isOpened, this._selectedDate, this._selectedDate);
+    this._render.update(dpUpdateState);
+    // this.close();
   }
 
   _selectToday(e) {
     e.stopPropagation();
     this._setMonth();
 
-    if (this._now < this._minDate || this._now > this._maxDate) {
-      const dpUpdateState = new DPUpdateState(this._isOpened, this._now, this._selectedDate);
+    if (new Date() < this._minDate || new Date() > this._maxDate) {
+      const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
       this._render.update(dpUpdateState);
-      return;
     }
-
-    this._selectedDate = this._now;
-    const dpUpdateState = new DPUpdateState(this._isOpened, this._now, this._selectedDate);
-    this._render.update(dpUpdateState);
-    this._inputField.value = this._formatter.format(this._now);
+    else {
+      this._selectedDate = new Date();
+      const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
+      this._render.update(dpUpdateState);
+      this._inputField.value = this._formatter.format(new Date());
+    }
   }
 
   _renderNextMonth() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
     this._month = this._month + 1;
-    const date = new Date(this._currentYear, this._month);
+    const date = new Date(currentYear, this._month);
     const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
     this._render.update(dpUpdateState);
   }
 
   _renderPrevMonth() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
     this._month = this._month - 1;
-    const date = new Date(this._currentYear, this._month);
+    const date = new Date(currentYear, this._month);
     const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
     this._render.update(dpUpdateState);
   }
