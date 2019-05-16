@@ -18,6 +18,7 @@ export default class Render {
     this._maxDate = maxDate;
     this._stopBubblingRef = this._stopBubbling.bind(this);
     this._renderCalendar();
+    this._isRendered = true;
 
     return {
       todayRef: this._todayLabelBtn,
@@ -40,8 +41,8 @@ export default class Render {
     }
   }
 
-  isRendered() {
-    this._isRendered = true;
+  get isRendered() {
+    return this._isRendered;
   }
 
   destroy() {

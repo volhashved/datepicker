@@ -15,7 +15,7 @@ export default class Datepicker {
       this._minDate = minVal;
     }
     else {
-      throw new DateFormatError('Enter a valid date format');
+      throw new DateFormatError(`Min date is type of ${minVal.constructor.name} but expected type is Date`);
     }
   }
 
@@ -31,7 +31,7 @@ export default class Datepicker {
       this._maxDate = maxVal;
     }
     else {
-      throw new DateFormatError('Enter a valid date format');
+      throw new DateFormatError(`Max date is type of ${maxVal.constructor.name} but expected type is Date`);
     }
   }
 
@@ -47,7 +47,7 @@ export default class Datepicker {
       this._selectedDate = newDate;
     }
     else {
-      throw new DateFormatError('Enter a valid date format');
+      throw new DateFormatError(`Selected date is type of ${newDate.constructor.name} but expected type is Date`);
     }
   }
 
@@ -105,7 +105,6 @@ export default class Datepicker {
   render(input) {
     if(input && input.nodeName && input.nodeName.toLowerCase() === 'input') {
       this._inputField = input;
-      this._render.isRendered = true;
       this._setMonth();
       const dpInitState = new DPInitState(input, this._formatter, this.minDate, this.maxDate);
       this._calendar = this._render.create(dpInitState);
@@ -162,7 +161,7 @@ export default class Datepicker {
     this._inputField.value = `${this._formatter.format(this._selectedDate)}`;
     const dpUpdateState = new DPUpdateState(this._isOpened, this._selectedDate, this._selectedDate);
     this._render.update(dpUpdateState);
-    // this.close();
+    this.close();
   }
 
   _selectToday(e) {
