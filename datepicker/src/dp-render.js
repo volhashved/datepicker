@@ -197,7 +197,7 @@ export default class Render {
         }
       }
       else if(i >= lastDay + (stweekDay - 1) + (7 - ltweekday)) {
-        this._monthDates[i].parentNode.className = "datepicker_hidden";
+        this._monthDates[i].parentNode.className += " date_hidden";
       }
     }
   }

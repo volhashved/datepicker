@@ -134,6 +134,20 @@
     border-radius: 3px;
 }
 
+.date_hidden {
+    display: none;
+}
+
 .btn-no-outline {
     outline: none;
+}
+
+.input__error {
+    color: red;
+    text-align: center;
+    margin: 25px 0;
+}
+
+.input_invalid {
+    border:  1px solid red;
 }

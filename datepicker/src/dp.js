@@ -119,6 +119,7 @@ export default class Datepicker {
       this._inputField.addEventListener('click', this._openRef);
       this._inputField.addEventListener('focus', this._onInputFocusRef);
       this._inputField.addEventListener('blur', this._onInputBlurRef);
+      this._inputField.addEventListener('keypress', this._onInputPressRef);
       this._calendar.todayRef.addEventListener('click', this._selectTodayRef);
       this._calendar.nextMonthRef.addEventListener('click', this._nextMonthRef);
       this._calendar.prevMonthRef.addEventListener('click', this._prevMonthRef);
@@ -145,6 +146,7 @@ export default class Datepicker {
     this._closeRef = this.close.bind(this);
     this._onInputFocusRef = this._onInputFocus.bind(this);
     this._onInputBlurRef = this._onInputBlur.bind(this);
+    this._onInputPressRef = this._onInputPress.bind(this);
     this._handleKeypressRef = this._handleKeypress.bind(this);
     this._selectTodayRef = this._selectToday.bind(this);
     this._selectDateRef = this._selectDate.bind(this);
@@ -228,6 +230,32 @@ export default class Datepicker {
     }
   }
 
+  _onInputPress(e) {
+    const key = e.which || e.keyCode;
+    if(key === 13) {
+      const inputValue = e.target.value;
+      const re = /^([0-2]?[\d]|3[0-1])(\/)(0?[0-9]{1}|1[0-2])(\/)[0-9]{4}$/;
+      const errorMessage = document.createElement('div');
+      if(!re.test(inputValue)) {
+        this._inputField.classList.add('input_invalid');
+        errorMessage.className = "input__error";
+        errorMessage.innerHTML = `Date format ${inputValue} is invalid, valid date format is dd/mm/yyyy`;
+        this._inputField.parentNode.insertBefore(errorMessage, this._inputField.nextSibling);
+      }
+      else {
+        this._inputField.classList.remove('input_invalid');
+        const dateArr = inputValue.split("/");
+        let date = new Date(dateArr[2], dateArr[1]-1, dateArr[0]);
+        if(date < this._minDate || date > this._maxDate) {
+          throw new DateValueError(`Selected date ${this._formatter.format(date)} should be between min ${this._formatter.format(this._minDate)} and max ${this._formatter.format(this._maxDate)} dates`);
+        }
+        else {
+          this.__selectedDate = date;
+        }
+      }
+    }
+  }
+
   _windowClick(e) {
     if(e.target.nodeName.toLowerCase() === 'input' && e.which !== 27) {
       if (this._isOpened && e.target.getAttribute('id') !== this._id) {
@@ -257,11 +285,15 @@ export default class Datepicker {
         break;
 
       case 39:
-        this._renderNextMonth();
+        if(!this._isFocused) {
+          this._renderNextMonth();
+        }
         break;
 
       case 37:
-        this._renderPrevMonth();
+        if(!this._isFocused) {
+          this._renderPrevMonth();
+        }
         break;
     }
   }
