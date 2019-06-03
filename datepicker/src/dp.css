@@ -134,7 +134,7 @@
     border-radius: 3px;
 }
 
-.date_hidden {
+.date_hidden, .input__error_hidden {
     display: none;
 }
 
