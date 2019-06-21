@@ -46,6 +46,7 @@ export default class Datepicker {
         throw new DateValueError(`Selected date ${this._formatter.format(newDate)} should be between min ${this._formatter.format(this._minDate)} and max ${this._formatter.format(this._maxDate)} dates`);
       }
       this._selectedDate = newDate;
+      this._onSelectedDateChange$.next(this._selectedDate);
     }
     else {
       throw new DateFormatError(`Selected date is type of ${newDate.constructor.name} but expected type is Date`);
@@ -54,6 +55,10 @@ export default class Datepicker {
 
   get onSelectedDateChange$() {
     return this._onSelectedDateChange$.asObservable();
+  }
+
+  get onErrorOccured$() {
+    return this._onErrorOccured$.asObservable();
   }
 
   constructor (minDate, maxDate, render, formatter) {
@@ -66,6 +71,7 @@ export default class Datepicker {
     this._init();
 
     this._onSelectedDateChange$ = new rxjs.Subject();
+    this._onErrorOccured$ = new rxjs.Subject();
   }
 
   open() {
@@ -116,7 +122,6 @@ export default class Datepicker {
       this._setMonth();
       const dpInitState = new DPInitState(input, this._formatter, this.minDate, this.maxDate);
       this._calendar = this._render.create(dpInitState);
-      this._renderErrorField();
       this._inputField.setAttribute('id', `${this._id}`);
       this._inputField.addEventListener('click', this._openRef);
       this._inputField.addEventListener('focus', this._onInputFocusRef);
@@ -166,10 +171,10 @@ export default class Datepicker {
     this._month = new Date().getMonth();
   }
 
-  set __selectedDate(newDate) {
-    this._selectedDate = newDate;
-    this._onSelectedDateChange$.next(this._selectedDate);
-  }
+  // set __selectedDate(newDate) {
+  //   this._selectedDate = newDate;
+  //   this._onSelectedDateChange$.next(this._selectedDate);
+  // }
 
   set inputValue(date) {
     this._inputField.value = `${this._formatter.format(date)}`;
@@ -178,11 +183,10 @@ export default class Datepicker {
   _selectDate(e) {
     if(this._inputInvalid) {
       this._inputInvalid = false;
-      this._hideErrorMessage();
     }
     const now = new Date();
     const currentYear = now.getFullYear();
-    this.__selectedDate = new Date(currentYear, this._month, e.target.textContent);
+    this.selectedDate = new Date(currentYear, this._month, e.target.textContent);
     this.inputValue = this._selectedDate;
     const dpUpdateState = new DPUpdateState(this._isOpened, this._selectedDate, this._selectedDate);
     this._render.update(dpUpdateState);
@@ -203,7 +207,7 @@ export default class Datepicker {
       this._render.update(dpUpdateState);
     }
     else {
-      this.__selectedDate = new Date();
+      this.selectedDate = new Date();
       const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
       this._render.update(dpUpdateState);
       this._inputField.value = this._formatter.format(new Date());
@@ -249,38 +253,22 @@ export default class Datepicker {
       const re = /^([0-2]?[\d]|3[0-1])(\/)(0?[0-9]{1}|1[0-2])(\/)[0-9]{4}$/;
       if(!re.test(inputValue)) {
         this._inputInvalid = true;
-        this._showErrorMessage(inputValue);
+        this._onErrorOccured$.next(inputValue);
       }
       else {
         this._inputInvalid = false;
-        this._hideErrorMessage();
         const dateArr = inputValue.split("/");
         let date = new Date(dateArr[2], dateArr[1]-1, dateArr[0]);
-        if(date < this._minDate || date > this._maxDate) {
-          throw new DateValueError(`Selected date ${this._formatter.format(date)} should be between min ${this._formatter.format(this._minDate)} and max ${this._formatter.format(this._maxDate)} dates`);
+
+        try {
+          this.selectedDate = date;
         }
-        else {
-          this.__selectedDate = date;
+        catch(err) {
+          this._onErrorOccured$.next(err);
         }
+
       }
     }
-  }
-
-  _renderErrorField() {
-    this._errorMessage = document.createElement('div');
-    this._errorMessage.className = "input__error input__error_hidden";
-    this._inputField.parentNode.insertBefore(this._errorMessage, this._inputField.nextSibling);
-  }
-
-  _showErrorMessage(inputValue) {
-    this._inputField.classList.add('input_invalid');
-    this._errorMessage.classList.remove('input__error_hidden');
-    this._errorMessage.innerHTML = `Date format ${inputValue} is invalid, valid date format is dd/mm/yyyy`;
-  }
-
-  _hideErrorMessage() {
-    this._inputField.classList.remove('input_invalid');
-    this._errorMessage.classList.add('input__error_hidden');
   }
 
   _windowClick(e) {

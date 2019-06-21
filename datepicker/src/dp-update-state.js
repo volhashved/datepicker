@@ -1,7 +1,7 @@
 import { DateFormatError } from './dp-errors.js';
 
 export default class DPUpdateState {
-  constructor(isOpened, calendarDate, selectedDate) {
+  constructor(isOpened, calendarDate, selectedDate, inputInvalid) {
     this.isOpened = isOpened;
 
     if(calendarDate instanceof Date) {
@@ -14,8 +14,9 @@ export default class DPUpdateState {
     if(selectedDate instanceof Date) {
       this.selectedDate = selectedDate;
     }
-    // else {
-    //   throw new DateFormatError(`Selected date is type of ${selectedDate.constructor.name} but expected type is Date`);
-    // }
+   
+    if(inputInvalid) {
+      this.inputInvalid = inputInvalid;
+    }
   }
 }
