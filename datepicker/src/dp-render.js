@@ -28,8 +28,14 @@ export default class Render {
     }
   }
 
-  update({isOpened, calendarDate, selectedDate}) {
+  update({isOpened, calendarDate, selectedDate, minDate, maxDate}) {
     if(isOpened) {
+      if(minDate) {
+        this._minDate = minDate;
+      }
+      if(maxDate) {
+        this._maxDate = maxDate;
+      }
       this._now = new Date();
       this._selectedDate = selectedDate;
       this._setLabelValue();

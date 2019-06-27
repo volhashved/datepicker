@@ -1,7 +1,7 @@
 import { DateFormatError } from './dp-errors.js';
 
 export default class DPUpdateState {
-  constructor(isOpened, calendarDate, selectedDate, inputInvalid) {
+  constructor(isOpened, calendarDate, selectedDate, minDate, maxDate) {
     this.isOpened = isOpened;
 
     if(calendarDate instanceof Date) {
@@ -14,9 +14,13 @@ export default class DPUpdateState {
     if(selectedDate instanceof Date) {
       this.selectedDate = selectedDate;
     }
-   
-    if(inputInvalid) {
-      this.inputInvalid = inputInvalid;
+
+    if(minDate && (minDate instanceof Date)) {
+      this.minDate = minDate;
+    }
+
+    if(maxDate && (maxDate instanceof Date)) {
+      this.maxDate = maxDate;
     }
   }
 }

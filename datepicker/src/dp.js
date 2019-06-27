@@ -65,8 +65,8 @@ export default class Datepicker {
     this._formatter = formatter;
     this._minDate = new Date(new Date().getFullYear(), 0, 1);
     this._maxDate = new Date(new Date().getFullYear(), 12, 0);
-    this.minDate = minDate || this._minDate;
-    this.maxDate = maxDate || this._maxDate;
+    this.minDate = new Date(minDate.setHours(0,0,0,0)) || this._minDate;
+    this.maxDate = new Date(maxDate.setHours(0,0,0,0))|| this._maxDate;
     this._render = render;
     this._init();
 
@@ -79,13 +79,13 @@ export default class Datepicker {
       this._isOpened = true;
       if(!this._selectedDate) {
         this._setMonth();
-        const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
+        const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate, this.minDate, this.maxDate);
         this._render.update(dpUpdateState);
       }
       else {
         this._month = this._selectedDate.getMonth();
         const date = new Date(this._selectedDate.getFullYear(), this._month);
-        const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
+        const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate, this.minDate, this.maxDate);
         this._render.update(dpUpdateState);
         this._inputField.value = `${this._formatter.format(this._selectedDate)}`;
       }
@@ -171,11 +171,6 @@ export default class Datepicker {
     this._month = new Date().getMonth();
   }
 
-  // set __selectedDate(newDate) {
-  //   this._selectedDate = newDate;
-  //   this._onSelectedDateChange$.next(this._selectedDate);
-  // }
-
   set inputValue(date) {
     this._inputField.value = `${this._formatter.format(date)}`;
   }
@@ -188,7 +183,7 @@ export default class Datepicker {
     const currentYear = now.getFullYear();
     this.selectedDate = new Date(currentYear, this._month, e.target.textContent);
     this.inputValue = this._selectedDate;
-    const dpUpdateState = new DPUpdateState(this._isOpened, this._selectedDate, this._selectedDate);
+    const dpUpdateState = new DPUpdateState(this._isOpened, this._selectedDate, this._selectedDate, this.minDate, this.maxDate);
     this._render.update(dpUpdateState);
     this.close();
   }
@@ -199,7 +194,6 @@ export default class Datepicker {
 
     if(this._inputInvalid) {
       this._inputInvalid = false;
-      this._hideErrorMessage();
     }
 
     if (new Date() < this._minDate || new Date() > this._maxDate) {
@@ -220,7 +214,7 @@ export default class Datepicker {
 
     this._month = this._month + 1;
     const date = new Date(currentYear, this._month);
-    const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
+    const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate, this.minDate, this.maxDate);
     this._render.update(dpUpdateState);
   }
 
@@ -230,7 +224,7 @@ export default class Datepicker {
 
     this._month = this._month - 1;
     const date = new Date(currentYear, this._month);
-    const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate);
+    const dpUpdateState = new DPUpdateState(this._isOpened, date, this._selectedDate, this.minDate, this.maxDate);
     this._render.update(dpUpdateState);
   }
 
