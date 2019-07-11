@@ -1,4 +1,4 @@
-import { DateFormatError, DateValueError, InputError, RenderError } from './dp-errors.js';
+import { DateFormatError, DateValueError, InputError, RenderError, InputValueError } from './dp-errors.js';
 import DPInitState from './dp-init-state.js';
 import DPUpdateState from './dp-update-state.js';
 import * as rxjs from 'rxjs';
@@ -144,7 +144,6 @@ export default class Datepicker {
     this._inputField = null;
     this._isOpened = false;
     this._isFocused = false;
-    this._inputInvalid = false;
     this._setId();
     this._bindMethods();
   }
@@ -176,9 +175,6 @@ export default class Datepicker {
   }
 
   _selectDate(e) {
-    if(this._inputInvalid) {
-      this._inputInvalid = false;
-    }
     const now = new Date();
     const currentYear = now.getFullYear();
     this.selectedDate = new Date(currentYear, this._month, e.target.textContent);
@@ -191,10 +187,6 @@ export default class Datepicker {
   _selectToday(e) {
     e.stopPropagation();
     this._setMonth();
-
-    if(this._inputInvalid) {
-      this._inputInvalid = false;
-    }
 
     if (new Date() < this._minDate || new Date() > this._maxDate) {
       const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
@@ -246,11 +238,11 @@ export default class Datepicker {
       const inputValue = e.target.value;
       const re = /^([0-2]?[\d]|3[0-1])(\/)(0?[0-9]{1}|1[0-2])(\/)[0-9]{4}$/;
       if(!re.test(inputValue)) {
-        this._inputInvalid = true;
-        this._onErrorOccured$.next(inputValue);
+        const err = new InputValueError(`Date format ${inputValue} is invalid, valid date format is dd/mm/yyyy`);
+        console.log(err);
+        this._onErrorOccured$.next(err.message);
       }
       else {
-        this._inputInvalid = false;
         const dateArr = inputValue.split("/");
         let date = new Date(dateArr[2], dateArr[1]-1, dateArr[0]);
 
@@ -258,7 +250,7 @@ export default class Datepicker {
           this.selectedDate = date;
         }
         catch(err) {
-          this._onErrorOccured$.next(err);
+          this._onErrorOccured$.next(err.message);
         }
 
       }
