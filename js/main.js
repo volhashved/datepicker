@@ -1,104 +1,119 @@
 'use strict';
-
 const DPFactory = myApp.default;
-
 const dp1 = DPFactory.getDatepicker(new Date(), new Date(2020, 3, 20));
-const input1 = document.querySelectorAll("input")[0];
-let dpError1 = null;
-
-// dp1.minDate = (new Date(2019, 1, 10));
-// dp1.maxDate = (new Date(2019, 3, 22));
-// dp1.selectedDate = (new Date(2019, 1, 20));
-dp1.render(input1);
-// dp1.destroy();
-
 const dp2 = DPFactory.getDatepicker(new Date(), new Date(2020, 3, 20));
-const input2 = document.querySelectorAll("input")[1];
-let dpError2 = null;
-dp2.render(input2);
 
-const renderErrorField = (inputField) => {
-    const errorField = document.createElement('div');
-    errorField.className = "input__error input__error_hidden";
-    inputField.parentNode.insertBefore(errorField, inputField.nextSibling);
-    return errorField;
-}
-
-const showErrorMessage = (inputField, errorField) => {
-    inputField.classList.add('input_invalid');
-    errorField.classList.remove('input__error_hidden');
-    errorField.innerHTML = `Date format ${inputField.value} is invalid, valid date format is dd/mm/yyyy`;
-}
-
-const hideErrorMessage = (inputField, errorField) => {
-    inputField.classList.remove('input_invalid');
-    errorField.classList.add('input__error_hidden');
-    inputField.parentNode.removeChild(errorField);
-}
-
-
-// RxJS
-let startSelectedDate;
-let endAvailableDate;
-let endSelectedDate;
-
-const stream1$ = dp1.onSelectedDateChange$;
-stream1$.subscribe((startDate) => {
-    if(dpError1) {
-        hideErrorMessage(input1, dpError1);
+class Render {
+    constructor(input, dp) {
+        this.input = input;
+        this.dp = dp;
+        this.init();
     }
-    dpError1 = renderErrorField(input1);
-    startSelectedDate = startDate;
-    endAvailableDate = new Date( startSelectedDate.getFullYear(), startSelectedDate.getMonth(), startSelectedDate.getDate() + 20 );
 
-    if(endSelectedDate) {
-        if(startSelectedDate > endSelectedDate) {
-            endSelectedDate = startSelectedDate;
-            dp2.maxDate = startSelectedDate;
+    init() {
+        this.dp.render(this.input);
+    }
+
+    renderErrorField = (err) => {
+        this.errorField = document.createElement('div');
+        this.errorField.className = "input__error input__error_hidden";
+        this.errorField.innerHTML = err;
+        this.input.parentNode.insertBefore(this.errorField, this.input.nextSibling);
+        return this.errorField;
+    }
+
+    showErrorMessage = () => {
+        this.input.classList.add('input_invalid');
+        this.errorField.classList.remove('input__error_hidden');
+    }
+
+    hideErrorMessage = () => {
+        this.input.classList.remove('input_invalid');
+        this.errorField.classList.add('input__error_hidden');
+        this.input.parentNode.removeChild(this.errorField);
+    }
+}
+
+class DPApp {
+    constructor() {
+        this.dpApp1 = new Render(document.querySelectorAll("input")[0], dp1);
+        this.dpApp2 = new Render(document.querySelectorAll("input")[1], dp2);
+    }
+
+    execute() {
+        // RxJS
+        let startSelectedDate;
+        let endAvailableDate;
+        let endSelectedDate;
+        let dp1ErrorFieldRef = null;
+        let dp2ErrorFieldRef = null;
+
+        const stream1$ = dp1.onSelectedDateChange$;
+        stream1$.subscribe((startDate) => {
+            if(dp1ErrorFieldRef) {
+                this.dpApp1.hideErrorMessage();
+            }
+            dp1ErrorFieldRef = this.dpApp1.renderErrorField();
+            startSelectedDate = startDate;
+            endAvailableDate = new Date( startSelectedDate.getFullYear(), startSelectedDate.getMonth(), startSelectedDate.getDate() + 20 );
+
+            if(endSelectedDate) {
+                if(startSelectedDate > endSelectedDate) {
+                    endSelectedDate = startSelectedDate;
+                    dp2.maxDate = startSelectedDate;
+                    dp2.minDate = startSelectedDate;
+                    dp2.selectedDate = endSelectedDate;
+                }
+                else if(endAvailableDate < endSelectedDate) {
+                    endSelectedDate = startSelectedDate;
+                    dp2.minDate = startSelectedDate;
+                    dp2.maxDate = startSelectedDate;
+                    dp2.selectedDate = endSelectedDate;
+                }
+            }
+
+            if(dp2.maxDate < startSelectedDate) {
+                dp2.maxDate = startSelectedDate;
+            }
             dp2.minDate = startSelectedDate;
-            dp2.selectedDate = endSelectedDate;
-        }
-        else if(endAvailableDate < endSelectedDate) {
-            endSelectedDate = startSelectedDate;
-            dp2.minDate = startSelectedDate;
-            dp2.maxDate = startSelectedDate;
-            dp2.selectedDate = endSelectedDate;
-        }
+            dp2.maxDate = endAvailableDate;
+
+            if(endSelectedDate) {
+                dp2.inputValue = endSelectedDate;
+            }
+        });
+
+        const stream2$ = dp2.onSelectedDateChange$;
+        stream2$.subscribe((endDate) => {
+            if(dp2ErrorFieldRef) {
+                this.dpApp2.hideErrorMessage();
+            }
+            dp2ErrorFieldRef = this.dpApp2.renderErrorField();
+            endSelectedDate = endDate;
+        });
+
+
+        // Errors
+        const err1$ = dp1.onErrorOccured$;
+        err1$.subscribe((err) => {
+            if(dp1ErrorFieldRef) {
+                this.dpApp1.hideErrorMessage();
+            }
+            dp1ErrorFieldRef = this.dpApp1.renderErrorField(err);
+            this.dpApp1.showErrorMessage();
+        });
+
+        const err2$ = dp2.onErrorOccured$;
+        err2$.subscribe((err) => {
+            if(dp2ErrorFieldRef) {
+                this.dpApp2.hideErrorMessage();
+            }
+            dp2ErrorFieldRef = this.dpApp2.renderErrorField(err);
+            this.dpApp2.showErrorMessage();
+        });
+
     }
+}
 
-    dp2.minDate = startSelectedDate;
-    dp2.maxDate = endAvailableDate;
-
-    if(endSelectedDate) {
-        dp2.inputValue = endSelectedDate;
-    }
-});
-
-const stream2$ = dp2.onSelectedDateChange$;
-stream2$.subscribe((endDate) => {
-    if(dpError2) {
-        hideErrorMessage(input2, dpError2);
-    }
-    dpError2 = renderErrorField(input2);
-    endSelectedDate = endDate;
-});
-
-
-// Errors
-const err1$ = dp1.onErrorOccured$;
-err1$.subscribe((err) => {
-    if(dpError1) {
-        hideErrorMessage(input1, dpError1);
-    }
-    dpError1 = renderErrorField(input1);
-    showErrorMessage(input1, dpError1);
-});
-
-const err2$ = dp2.onErrorOccured$;
-err2$.subscribe((err) => {
-    if(dpError2) {
-        hideErrorMessage(input2, dpError2);
-    }
-    dpError2 = renderErrorField(input2);
-    showErrorMessage(input2, dpError2);
-});
+const dpApp = new DPApp();
+dpApp.execute();

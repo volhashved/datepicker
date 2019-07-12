@@ -239,7 +239,6 @@ export default class Datepicker {
       const re = /^([0-2]?[\d]|3[0-1])(\/)(0?[0-9]{1}|1[0-2])(\/)[0-9]{4}$/;
       if(!re.test(inputValue)) {
         const err = new InputValueError(`Date format ${inputValue} is invalid, valid date format is dd/mm/yyyy`);
-        console.log(err);
         this._onErrorOccured$.next(err.message);
       }
       else {
