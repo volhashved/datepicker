@@ -1,4 +1,4 @@
-import { DateFormatError, DateValueError, InputError, RenderError, InputValueError } from './dp-errors.js';
+import { DateFormatError, DateValueError, InputError, RenderError } from './dp-errors.js';
 import DPInitState from './dp-init-state.js';
 import DPUpdateState from './dp-update-state.js';
 import * as rxjs from 'rxjs';
@@ -46,7 +46,7 @@ export default class Datepicker {
         throw new DateValueError(`Selected date ${this._formatter.format(newDate)} should be between min ${this._formatter.format(this._minDate)} and max ${this._formatter.format(this._maxDate)} dates`);
       }
       this._selectedDate = newDate;
-      this._onSelectedDateChange$.next(this._selectedDate);
+      this._selectedDateChange$.next(this._selectedDate);
     }
     else {
       throw new DateFormatError(`Selected date is type of ${newDate.constructor.name} but expected type is Date`);
@@ -54,11 +54,11 @@ export default class Datepicker {
   }
 
   get onSelectedDateChange$() {
-    return this._onSelectedDateChange$.asObservable();
+    return this._selectedDateChange$.asObservable();
   }
 
   get onErrorOccured$() {
-    return this._onErrorOccured$.asObservable();
+    return this._errorOccured$.asObservable();
   }
 
   constructor (minDate, maxDate, render, formatter) {
@@ -70,8 +70,8 @@ export default class Datepicker {
     this._render = render;
     this._init();
 
-    this._onSelectedDateChange$ = new rxjs.Subject();
-    this._onErrorOccured$ = new rxjs.Subject();
+    this._selectedDateChange$ = new rxjs.Subject();
+    this._errorOccured$ = new rxjs.Subject();
   }
 
   open() {
@@ -189,14 +189,19 @@ export default class Datepicker {
     this._setMonth();
 
     if (new Date() < this._minDate || new Date() > this._maxDate) {
-      const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
+      const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate, this.minDate, this.maxDate);
       this._render.update(dpUpdateState);
     }
     else {
-      this.selectedDate = new Date();
-      const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
-      this._render.update(dpUpdateState);
-      this._inputField.value = this._formatter.format(new Date());
+      try {
+        this.selectedDate = new Date();
+        const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate, this.minDate, this.maxDate);
+        this._render.update(dpUpdateState);
+        this._inputField.value = this._formatter.format(new Date());
+      }
+      catch(err) {
+        this._errorOccured$.next(err.message);
+      }
     }
   }
 
@@ -236,22 +241,17 @@ export default class Datepicker {
     const key = e.which || e.keyCode;
     if(key === 13) {
       const inputValue = e.target.value;
-      const re = /^([0-2]?[\d]|3[0-1])(\/)(0?[0-9]{1}|1[0-2])(\/)[0-9]{4}$/;
-      if(!re.test(inputValue)) {
-        const err = new InputValueError(`Date format ${inputValue} is invalid, valid date format is dd/mm/yyyy`);
-        this._onErrorOccured$.next(err.message);
-      }
-      else {
-        const dateArr = inputValue.split("/");
-        let date = new Date(dateArr[2], dateArr[1]-1, dateArr[0]);
-
+      const date = this._formatter.getDate(inputValue);
+      if(date instanceof Date) {
         try {
           this.selectedDate = date;
         }
         catch(err) {
-          this._onErrorOccured$.next(err.message);
+          this._errorOccured$.next(err.message);
         }
-
+      }
+      else {
+        this._errorOccured$.next(date);
       }
     }
   }

@@ -1,46 +1,47 @@
 'use strict';
 const DPFactory = myApp.default;
-const dp1 = DPFactory.getDatepicker(new Date(), new Date(2020, 3, 20));
-const dp2 = DPFactory.getDatepicker(new Date(), new Date(2020, 3, 20));
 
 class Render {
-    constructor(input, dp) {
-        this.input = input;
-        this.dp = dp;
-        this.init();
+    constructor() {}
+
+    create(input, dp) {
+        const dpView = input;
+        dp.render(input);
+        return dpView
     }
 
-    init() {
-        this.dp.render(this.input);
+    renderErrorField(input, errorMessage) {
+        const errorField = document.createElement('div');
+        errorField.className = "input__error input__error_hidden";
+        errorField.innerHTML = errorMessage || '';
+        input.parentNode.insertBefore(errorField, input.nextSibling);
+        return errorField;
     }
 
-    renderErrorField = (err) => {
-        this.errorField = document.createElement('div');
-        this.errorField.className = "input__error input__error_hidden";
-        this.errorField.innerHTML = err;
-        this.input.parentNode.insertBefore(this.errorField, this.input.nextSibling);
-        return this.errorField;
+    showErrorMessage(input, errorField) {
+        input.classList.add('input_invalid');
+        errorField.classList.remove('input__error_hidden');
     }
 
-    showErrorMessage = () => {
-        this.input.classList.add('input_invalid');
-        this.errorField.classList.remove('input__error_hidden');
-    }
-
-    hideErrorMessage = () => {
-        this.input.classList.remove('input_invalid');
-        this.errorField.classList.add('input__error_hidden');
-        this.input.parentNode.removeChild(this.errorField);
+    hideErrorMessage(input, errorField) {
+        input.classList.remove('input_invalid');
+        errorField.classList.add('input__error_hidden');
+        input.parentNode.removeChild(errorField);
     }
 }
 
 class DPApp {
-    constructor() {
-        this.dpApp1 = new Render(document.querySelectorAll("input")[0], dp1);
-        this.dpApp2 = new Render(document.querySelectorAll("input")[1], dp2);
-    }
+    constructor() {}
 
     execute() {
+        const render = new Render();
+
+        const dp1 = DPFactory.getDatepicker(new Date(), new Date(2020, 3, 20));
+        const dp1View = render.create(document.querySelectorAll("input")[0], dp1);
+
+        const dp2 = DPFactory.getDatepicker(new Date(), new Date(2020, 3, 20));
+        const dp2View = render.create(document.querySelectorAll("input")[1], dp2);
+
         // RxJS
         let startSelectedDate;
         let endAvailableDate;
@@ -51,9 +52,9 @@ class DPApp {
         const stream1$ = dp1.onSelectedDateChange$;
         stream1$.subscribe((startDate) => {
             if(dp1ErrorFieldRef) {
-                this.dpApp1.hideErrorMessage();
+                render.hideErrorMessage(dp1View, dp1ErrorFieldRef);
             }
-            dp1ErrorFieldRef = this.dpApp1.renderErrorField();
+            dp1ErrorFieldRef = render.renderErrorField(dp1View);
             startSelectedDate = startDate;
             endAvailableDate = new Date( startSelectedDate.getFullYear(), startSelectedDate.getMonth(), startSelectedDate.getDate() + 20 );
 
@@ -86,9 +87,9 @@ class DPApp {
         const stream2$ = dp2.onSelectedDateChange$;
         stream2$.subscribe((endDate) => {
             if(dp2ErrorFieldRef) {
-                this.dpApp2.hideErrorMessage();
+                render.hideErrorMessage(dp2View, dp2ErrorFieldRef);
             }
-            dp2ErrorFieldRef = this.dpApp2.renderErrorField();
+            dp2ErrorFieldRef = render.renderErrorField(dp2View);
             endSelectedDate = endDate;
         });
 
@@ -97,19 +98,19 @@ class DPApp {
         const err1$ = dp1.onErrorOccured$;
         err1$.subscribe((err) => {
             if(dp1ErrorFieldRef) {
-                this.dpApp1.hideErrorMessage();
+                render.hideErrorMessage(dp1View, dp1ErrorFieldRef);
             }
-            dp1ErrorFieldRef = this.dpApp1.renderErrorField(err);
-            this.dpApp1.showErrorMessage();
+            dp1ErrorFieldRef = render.renderErrorField(dp1View, err);
+            render.showErrorMessage(dp1View, dp1ErrorFieldRef);
         });
 
         const err2$ = dp2.onErrorOccured$;
         err2$.subscribe((err) => {
             if(dp2ErrorFieldRef) {
-                this.dpApp2.hideErrorMessage();
+                render.hideErrorMessage(dp2View, dp2ErrorFieldRef);
             }
-            dp2ErrorFieldRef = this.dpApp2.renderErrorField(err);
-            this.dpApp2.showErrorMessage();
+            dp2ErrorFieldRef = render.renderErrorField(dp2View, err);
+            render.showErrorMessage(dp2View, dp2ErrorFieldRef);
         });
 
     }
