@@ -189,13 +189,13 @@ export default class Datepicker {
     this._setMonth();
 
     if (new Date() < this._minDate || new Date() > this._maxDate) {
-      const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate, this.minDate, this.maxDate);
+      const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
       this._render.update(dpUpdateState);
     }
     else {
       try {
         this.selectedDate = new Date();
-        const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate, this.minDate, this.maxDate);
+        const dpUpdateState = new DPUpdateState(this._isOpened, new Date(), this._selectedDate);
         this._render.update(dpUpdateState);
         this._inputField.value = this._formatter.format(new Date());
       }
@@ -241,17 +241,12 @@ export default class Datepicker {
     const key = e.which || e.keyCode;
     if(key === 13) {
       const inputValue = e.target.value;
-      const date = this._formatter.getDate(inputValue);
-      if(date instanceof Date) {
-        try {
-          this.selectedDate = date;
-        }
-        catch(err) {
-          this._errorOccured$.next(err.message);
-        }
+      try {
+        const date = this._formatter.parseDate(inputValue);
+        this.selectedDate = date;
       }
-      else {
-        this._errorOccured$.next(date);
+      catch(err) {
+        this._errorOccured$.next(err.message);
       }
     }
   }

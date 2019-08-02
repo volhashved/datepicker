@@ -16,11 +16,10 @@ export default class Formatter {
     })}`;
   }
 
-  getDate(inputValue) {
+  parseDate(inputValue) {
     const re = /^([0-2]?[\d]|3[0-1])(\/)(0?[0-9]{1}|1[0-2])(\/)[0-9]{4}$/;
     if(!re.test(inputValue)) {
-      const err = new InputValueError(`Date format ${inputValue} is invalid, valid date format is dd/mm/yyyy`);
-      return err.message;
+      throw new InputValueError(`Date format ${inputValue} is invalid, valid date format is dd/mm/yyyy`);
     }
     else {
       const dateArr = inputValue.split("/");
