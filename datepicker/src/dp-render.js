@@ -28,8 +28,14 @@ export default class Render {
     }
   }
 
-  update({isOpened, calendarDate, selectedDate}) {
+  update({isOpened, calendarDate, selectedDate, minDate, maxDate}) {
     if(isOpened) {
+      if(minDate) {
+        this._minDate = minDate;
+      }
+      if(maxDate) {
+        this._maxDate = maxDate;
+      }
       this._now = new Date();
       this._selectedDate = selectedDate;
       this._setLabelValue();
@@ -197,7 +203,7 @@ export default class Render {
         }
       }
       else if(i >= lastDay + (stweekDay - 1) + (7 - ltweekday)) {
-        this._monthDates[i].parentNode.className = "datepicker_hidden";
+        this._monthDates[i].parentNode.className += " date_hidden";
       }
     }
   }
